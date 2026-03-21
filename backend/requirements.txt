@@ -1,0 +1,21 @@
+# Django
+Django==4.2.*
+djangorestframework==3.14.*
+djangorestframework-simplejwt==5.3.*
+django-cors-headers==4.3.*
+django-filter==23.5
+
+# MySQL
+mysqlclient==2.2.*
+
+# 环境变量
+python-decouple==3.8
+
+# 树形分类
+django-treebeard==4.7.*
+
+# API 文档
+drf-spectacular==0.27.*
+
+# 其他工具
+Pillow>=10.0.0
