@@ -7,7 +7,7 @@ import request from './request'
  * 获取分类树
  */
 export function getCategoryTree() {
-  return request.get('/api/categories/tree/')
+  return request.get('/api/categories/')
 }
 
 /**
@@ -80,14 +80,14 @@ export function deleteBook(id) {
  * 上架图书
  */
 export function publishBook(id) {
-  return request.post(`/api/books/${id}/publish/`)
+  return request.post(`/api/books/${id}/toggle-status/`)
 }
 
 /**
  * 下架图书
  */
 export function unpublishBook(id) {
-  return request.post(`/api/books/${id}/unpublish/`)
+  return request.post(`/api/books/${id}/toggle-status/`)
 }
 
 // ========== 副本接口 ==========

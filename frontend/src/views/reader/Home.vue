@@ -21,6 +21,10 @@ const searchParams = ref({
 
 const total = ref(0)
 
+// 公告详情弹窗
+const announcementVisible = ref(false)
+const currentAnnouncement = ref({ title: '', content: '' })
+
 async function fetchBooks() {
   loading.value = true
   try {
@@ -70,6 +74,11 @@ function goToDetail(id) {
   router.push(`/reader/book/${id}`)
 }
 
+function showAnnouncement(item) {
+  currentAnnouncement.value = { title: item.title, content: item.content }
+  announcementVisible.value = true
+}
+
 onMounted(() => {
   fetchBooks()
   fetchCategories()
@@ -83,9 +92,10 @@ onMounted(() => {
     <div v-if="announcements.length > 0" class="announcement-section">
       <el-carousel height="60px" direction="vertical" :autoplay="true" indicator-position="none">
         <el-carousel-item v-for="item in announcements" :key="item.id">
-          <div class="announcement-item">
+          <div class="announcement-item" @click="showAnnouncement(item)">
             <el-icon color="#E6A23C"><Bell /></el-icon>
             <span class="title">{{ item.title }}</span>
+            <span class="view-detail">查看详情 &gt;</span>
           </div>
         </el-carousel-item>
       </el-carousel>
@@ -168,6 +178,18 @@ onMounted(() => {
         />
       </div>
     </div>
+    
+    <!-- 公告详情弹窗 -->
+    <el-dialog v-model="announcementVisible" title="公告详情" width="500px">
+      <div class="announcement-detail">
+        <h3>{{ currentAnnouncement.title }}</h3>
+        <el-divider />
+        <p>{{ currentAnnouncement.content }}</p>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="announcementVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -189,11 +211,18 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   height: 60px;
+  cursor: pointer;
 }
 
 .announcement-item .title {
+  flex: 1;
   color: #666;
   font-size: 14px;
+}
+
+.announcement-item .view-detail {
+  color: #409EFF;
+  font-size: 12px;
 }
 
 .search-section {
@@ -272,5 +301,18 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+.announcement-detail h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  color: #303133;
+}
+
+.announcement-detail p {
+  margin: 0;
+  line-height: 1.8;
+  color: #606266;
+  white-space: pre-wrap;
 }
 </style>

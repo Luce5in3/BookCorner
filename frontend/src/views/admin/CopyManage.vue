@@ -15,11 +15,22 @@ const formRef = ref(null)
 const queryParams = ref({ book: '', status: '', page: 1, page_size: 10 })
 
 const form = reactive({
-  id: null, book_id: null, barcode: '', condition: 1, status: 1, location: ''
+  id: null, book_id: null, book_title: '', barcode: '', condition: 1, status: 1, location: ''
 })
 
 const rules = {
-  book_id: [{ required: true, message: '请选择图书', trigger: 'change' }],
+  book_id: [{ 
+    required: true, 
+    validator: (rule, value, callback) => {
+      // 编辑时不验证，新增时必填
+      if (!form.id && !value) {
+        callback(new Error('请选择图书'))
+      } else {
+        callback()
+      }
+    },
+    trigger: 'change' 
+  }],
   barcode: [{ required: true, message: '请输入条码', trigger: 'blur' }]
 }
 
@@ -53,13 +64,21 @@ function handlePageChange(page) { queryParams.value.page = page; fetchCopies() }
 
 function handleAdd() {
   dialogTitle.value = '入库'
-  Object.assign(form, { id: null, book_id: null, barcode: '', condition: 1, status: 1, location: '' })
+  Object.assign(form, { id: null, book_id: null, book_title: '', barcode: '', condition: 1, status: 1, location: '' })
   dialogVisible.value = true
 }
 
 function handleEdit(row) {
   dialogTitle.value = '编辑副本'
-  Object.assign(form, { id: row.id, book_id: row.book_id, barcode: row.barcode, condition: row.condition, status: row.status, location: row.location || '' })
+  Object.assign(form, { 
+    id: row.id, 
+    book_id: row.book_id, 
+    book_title: row.book_title,  // 保存图书名称用于显示
+    barcode: row.barcode, 
+    condition: row.condition, 
+    status: row.status, 
+    location: row.location || '' 
+  })
   dialogVisible.value = true
 }
 
@@ -143,7 +162,10 @@ onMounted(() => { fetchCopies(); fetchBooks() })
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="图书" prop="book_id">
-          <el-select v-model="form.book_id" placeholder="选择图书" filterable style="width: 100%">
+          <!-- 编辑时显示图书名称（只读） -->
+          <el-input v-if="form.id" :model-value="form.book_title" disabled />
+          <!-- 新增时选择图书 -->
+          <el-select v-else v-model="form.book_id" placeholder="选择图书" filterable style="width: 100%">
             <el-option v-for="book in books" :key="book.id" :label="book.title" :value="book.id" />
           </el-select>
         </el-form-item>

@@ -2,23 +2,36 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getBook } from '@/api/books'
-import { createReservation } from '@/api/reservations'
+import { createReservation, getMyReservations } from '@/api/reservations'
 import { formatDate, formatMoney, BOOK_STATUS } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()
 const loading = ref(false)
 const book = ref(null)
+const isReserved = ref(false)  // 是否已预约
 
 async function fetchBook() {
   loading.value = true
   try {
     const data = await getBook(route.params.id)
     book.value = data
+    // 检查是否已预约
+    await checkReservation()
   } catch (error) {
     console.error('获取图书详情失败:', error)
   } finally {
     loading.value = false
+  }
+}
+
+async function checkReservation() {
+  try {
+    const data = await getMyReservations({ status: 1, page_size: 100 })  // status=1 等待中
+    const reservations = data.results || data || []
+    isReserved.value = reservations.some(r => r.book_id === book.value?.id)
+  } catch (error) {
+    console.error('检查预约状态失败:', error)
   }
 }
 
@@ -102,11 +115,20 @@ onMounted(() => {
                   icon="Clock"
                   @click="handleReserve"
                 >
+                  预约此书（无库存）
+                </el-button>
+                <el-button 
+                  v-else
+                  type="success" 
+                  size="large"
+                  icon="Clock"
+                  @click="handleReserve"
+                >
                   预约此书
                 </el-button>
-                <el-text v-if="book.available_copies > 0" type="success">
+                <el-text v-if="book.available_copies > 0" type="success" class="ml-10">
                   <el-icon><InfoFilled /></el-icon>
-                  有 {{ book.available_copies }} 本可借，请到图书馆借阅
+                  有 {{ book.available_copies }} 本可借，也可直接到图书馆借阅
                 </el-text>
               </div>
             </div>

@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/reservations/', include('apps.reservations.urls')),
     path('api/fines/', include('apps.fines.urls')),
     path('api/announcements/', include('apps.announcements.urls')),
+    path('api/dashboard/', include('apps.dashboard.urls')),
     
     # API 文档
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

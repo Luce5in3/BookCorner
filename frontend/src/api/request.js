@@ -38,7 +38,8 @@ request.interceptors.response.use(
     const res = response.data
     
     // 统一处理响应格式 { code, message, data }
-    if (res.code !== 200) {
+    // 支持 200 和 201 状态码
+    if (res.code !== 200 && res.code !== 201) {
       ElMessage.error(res.message || '请求失败')
       return Promise.reject(new Error(res.message || '请求失败'))
     }

@@ -15,6 +15,10 @@ const queryParams = ref({ status: '', page: 1, page_size: 10 })
 
 const form = reactive({ id: null, title: '', content: '' })
 
+// 查看详情弹窗
+const detailVisible = ref(false)
+const detailData = ref({ title: '', content: '', admin_name: '', published_at: null })
+
 const rules = {
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
   content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
@@ -98,6 +102,17 @@ async function handleUnpublish(row) {
   }
 }
 
+// 查看详情
+function handleView(row) {
+  detailData.value = {
+    title: row.title,
+    content: row.content,
+    admin_name: row.admin_name,
+    published_at: row.published_at
+  }
+  detailVisible.value = true
+}
+
 onMounted(() => { fetchAnnouncements() })
 </script>
 
@@ -119,7 +134,11 @@ onMounted(() => { fetchAnnouncements() })
     
     <div class="table-container">
       <el-table v-loading="loading" :data="announcements" stripe>
-        <el-table-column prop="title" label="标题" min-width="200" />
+        <el-table-column prop="title" label="标题" min-width="200">
+          <template #default="{ row }">
+            <el-link type="primary" @click="handleView(row)">{{ row.title }}</el-link>
+          </template>
+        </el-table-column>
         <el-table-column prop="admin_name" label="发布者" width="100" />
         <el-table-column prop="created_at" label="创建时间" width="170">
           <template #default="{ row }">{{ formatDateTime(row.created_at) }}</template>
@@ -132,8 +151,9 @@ onMounted(() => { fetchAnnouncements() })
             <el-tag :type="getStatusTagType(row.status, 'announcement')">{{ ANNOUNCEMENT_STATUS[row.status] }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
+            <el-button type="info" link @click="handleView(row)">查看</el-button>
             <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
             <el-button v-if="row.status === 0" type="success" link @click="handlePublish(row)">发布</el-button>
             <el-button v-else-if="row.status === 1" type="warning" link @click="handleUnpublish(row)">下架</el-button>
@@ -160,6 +180,22 @@ onMounted(() => { fetchAnnouncements() })
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+    
+    <!-- 查看详情弹窗 -->
+    <el-dialog v-model="detailVisible" title="公告详情" width="600px">
+      <div class="detail-content">
+        <h3 class="detail-title">{{ detailData.title }}</h3>
+        <div class="detail-meta">
+          <span>发布者：{{ detailData.admin_name || '-' }}</span>
+          <span v-if="detailData.published_at">发布时间：{{ formatDateTime(detailData.published_at) }}</span>
+        </div>
+        <el-divider />
+        <div class="detail-body">{{ detailData.content }}</div>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="detailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -167,4 +203,8 @@ onMounted(() => { fetchAnnouncements() })
 .search-bar { background: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
 .table-container { background: #fff; padding: 20px; border-radius: 4px; }
 .pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
+.detail-content { padding: 10px 0; }
+.detail-title { margin: 0 0 15px; font-size: 18px; color: #333; }
+.detail-meta { color: #909399; font-size: 13px; display: flex; gap: 20px; }
+.detail-body { white-space: pre-wrap; line-height: 1.8; color: #666; }
 </style>

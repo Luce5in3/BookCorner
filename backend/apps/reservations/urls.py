@@ -17,11 +17,11 @@ urlpatterns = [
     # 我的预约
     path('my/', MyReservationListView.as_view(), name='my_reservations'),
     
-    # 预约管理（管理员）
-    path('', ReservationListView.as_view(), name='reservation_list'),
+    # 创建预约（用户）- POST /api/reservations/
+    path('', ReservationCreateView.as_view(), name='reservation_create'),
     
-    # 创建预约
-    path('create/', ReservationCreateView.as_view(), name='reservation_create'),
+    # 预约列表（管理员）- GET /api/reservations/list/
+    path('list/', ReservationListView.as_view(), name='reservation_list'),
     
     # 预约详情
     path('<int:pk>/', ReservationDetailView.as_view(), name='reservation_detail'),

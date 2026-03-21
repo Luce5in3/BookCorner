@@ -2,11 +2,11 @@
 import request from './request'
 
 /**
- * 获取预约列表
+ * 获取预约列表（管理员）
  * @param {Object} params { page, page_size, user, book, status }
  */
 export function getReservations(params) {
-  return request.get('/api/reservations/', { params })
+  return request.get('/api/reservations/list/', { params })
 }
 
 /**

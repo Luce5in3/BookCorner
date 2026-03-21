@@ -24,11 +24,11 @@ export function getBorrow(id) {
 }
 
 /**
- * 借书
- * @param {Object} data { book_copy_id, user_id }
+ * 借书（管理员办理）
+ * @param {Object} data { book_copy_id, barcode, user_id, days }
  */
 export function borrowBook(data) {
-  return request.post('/api/borrows/borrow/', data)
+  return request.post('/api/borrows/create/', data)
 }
 
 /**

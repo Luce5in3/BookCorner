@@ -36,5 +36,5 @@ export function payFine(id) {
  * @param {number} id 罚款记录 ID
  */
 export function waiveFine(id) {
-  return request.post(`/api/fines/${id}/waive/`)
+  return request.post(`/api/fines/${id}/exempt/`)
 }
