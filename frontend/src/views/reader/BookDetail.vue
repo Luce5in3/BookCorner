@@ -1,21 +1,27 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getBook } from '@/api/books'
 import { createReservation, getMyReservations } from '@/api/reservations'
 import { formatDate, formatMoney, BOOK_STATUS } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import imageCache from '@/utils/imageCache'
 
 const route = useRoute()
 const loading = ref(false)
 const book = ref(null)
 const isReserved = ref(false)  // 是否已预约
+const coverUrl = ref('')  // 本地缓存的封面 URL
 
 async function fetchBook() {
   loading.value = true
   try {
     const data = await getBook(route.params.id)
     book.value = data
+    // 加载封面缓存
+    if (data.cover_url) {
+      coverUrl.value = await imageCache.getImage(data.id, data.cover_url)
+    }
     // 检查是否已预约
     await checkReservation()
   } catch (error) {
@@ -56,6 +62,13 @@ async function handleReserve() {
 onMounted(() => {
   fetchBook()
 })
+
+onUnmounted(() => {
+  // 释放 blob URL，避免内存泄漏
+  if (coverUrl.value && coverUrl.value.startsWith('blob:')) {
+    URL.revokeObjectURL(coverUrl.value)
+  }
+})
 </script>
 
 <template>
@@ -67,7 +80,7 @@ onMounted(() => {
           <el-col :span="6">
             <div class="book-cover">
               <el-image
-                :src="book.cover_url || '/default-cover.png'"
+                :src="coverUrl || book.cover_url || '/default-cover.png'"
                 fit="cover"
                 class="cover-img"
               >

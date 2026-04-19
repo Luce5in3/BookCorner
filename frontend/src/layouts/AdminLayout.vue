@@ -48,146 +48,145 @@ async function handleLogout() {
 </script>
 
 <template>
-  <el-container class="h-full">
-    <!-- 侧边栏 -->
-    <el-aside :width="isCollapse ? '64px' : '220px'" class="aside-container">
-      <div class="logo-container">
-        <el-icon size="24" color="#409EFF"><Reading /></el-icon>
-        <span v-if="!isCollapse" class="logo-text">图书角管理系统</span>
+  <div class="min-h-screen flex bg-light-gray">
+    <!-- Sidebar - Nike Dark Theme -->
+    <aside 
+      class="fixed left-0 top-0 h-screen bg-nike-black transition-all duration-300 z-50 flex flex-col"
+      :class="isCollapse ? 'w-16' : 'w-56'"
+    >
+      <!-- Logo -->
+      <div class="h-[60px] flex items-center justify-center gap-2 border-b border-grey-700">
+        <div class="w-8 h-8 bg-nike-white rounded-full flex items-center justify-center flex-shrink-0">
+          <el-icon size="18" color="#111111"><Reading /></el-icon>
+        </div>
+        <span 
+          v-if="!isCollapse" 
+          class="text-h3 font-medium text-nike-white whitespace-nowrap"
+        >
+          图书角管理
+        </span>
       </div>
       
-      <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        background-color="#001529"
-        text-color="#fff"
-        active-text-color="#409EFF"
-        @select="handleMenuSelect"
-      >
-        <el-menu-item v-for="item in menuItems" :key="item.index" :index="item.index">
-          <el-icon><component :is="item.icon" /></el-icon>
-          <template #title>{{ item.title }}</template>
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
-    
-    <el-container>
-      <!-- 顶部导航 -->
-      <el-header class="header-container">
-        <div class="header-left">
-          <el-icon 
-            class="collapse-btn" 
-            size="20" 
-            @click="toggleCollapse"
-          >
+      <!-- Menu -->
+      <nav class="flex-1 py-4 overflow-y-auto">
+        <ul class="space-y-1 px-2">
+          <li v-for="item in menuItems" :key="item.index">
+            <button
+              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left"
+              :class="activeMenu === item.index 
+                ? 'bg-grey-700 text-nike-white' 
+                : 'text-grey-400 hover:bg-grey-700 hover:text-nike-white'"
+              @click="handleMenuSelect(item.index)"
+            >
+              <el-icon size="18" class="flex-shrink-0">
+                <component :is="item.icon" />
+              </el-icon>
+              <span 
+                v-if="!isCollapse" 
+                class="text-link-sm font-medium whitespace-nowrap"
+              >
+                {{ item.title }}
+              </span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      
+      <!-- Collapse Button -->
+      <div class="p-3 border-t border-grey-700">
+        <button
+          class="w-full flex items-center justify-center p-2 rounded-lg text-grey-400 hover:bg-grey-700 hover:text-nike-white transition-all duration-200"
+          @click="toggleCollapse"
+        >
+          <el-icon size="18">
             <component :is="isCollapse ? 'Expand' : 'Fold'" />
           </el-icon>
-          <el-breadcrumb separator="/">
-            <el-breadcrumb-item>管理后台</el-breadcrumb-item>
-            <el-breadcrumb-item>{{ route.meta.title }}</el-breadcrumb-item>
-          </el-breadcrumb>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <div 
+      class="flex-1 flex flex-col min-h-screen transition-all duration-300"
+      :class="isCollapse ? 'ml-16' : 'ml-56'"
+    >
+      <!-- Header -->
+      <header class="sticky top-0 z-40 bg-nike-white border-b border-border-secondary h-[60px] flex items-center justify-between px-6">
+        <!-- Breadcrumb -->
+        <div class="flex items-center gap-2">
+          <span class="text-link-sm text-text-secondary">管理后台</span>
+          <span class="text-link-sm text-text-secondary">/</span>
+          <span class="text-link-sm font-medium text-text-primary">{{ route.meta.title }}</span>
         </div>
         
-        <div class="header-right">
-          <el-dropdown>
-            <span class="user-info">
-              <el-avatar :size="32" icon="UserFilled" />
-              <span class="username">{{ username }}</span>
-              <el-icon><ArrowDown /></el-icon>
-            </span>
+        <!-- User Menu -->
+        <div class="flex items-center gap-4">
+          <el-dropdown trigger="click">
+            <div class="flex items-center gap-2 cursor-pointer py-2">
+              <div class="w-8 h-8 bg-light-gray rounded-full flex items-center justify-center">
+                <el-icon size="16" class="text-text-secondary"><UserFilled /></el-icon>
+              </div>
+              <span class="text-body-medium text-text-primary">{{ username }}</span>
+              <el-icon class="text-text-secondary"><ArrowDown /></el-icon>
+            </div>
             <template #dropdown>
-              <el-dropdown-menu>
+              <el-dropdown-menu class="!rounded-card !border-border-secondary">
                 <el-dropdown-item @click="router.push('/reader/home')">
-                  <el-icon><House /></el-icon>读者端
+                  <el-icon class="mr-2"><House /></el-icon>读者端
                 </el-dropdown-item>
                 <el-dropdown-item divided @click="handleLogout">
-                  <el-icon><SwitchButton /></el-icon>退出登录
+                  <el-icon class="mr-2"><SwitchButton /></el-icon>退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
         </div>
-      </el-header>
+      </header>
       
-      <!-- 主内容区 -->
-      <el-main class="main-container">
+      <!-- Main Content -->
+      <main class="flex-1 p-6">
         <router-view />
-      </el-main>
-    </el-container>
-  </el-container>
+      </main>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.aside-container {
-  background-color: #001529;
-  transition: width 0.3s;
-  overflow: hidden;
+/* Dropdown menu styling */
+:deep(.el-dropdown-menu) {
+  border-radius: 20px !important;
+  border: 1px solid #CACACB !important;
+  box-shadow: none !important;
+  padding: 8px !important;
 }
 
-.logo-container {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-bottom: 1px solid #002140;
+:deep(.el-dropdown-menu__item) {
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #111111 !important;
 }
 
-.logo-text {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  white-space: nowrap;
+:deep(.el-dropdown-menu__item:hover) {
+  background-color: #F5F5F5 !important;
 }
 
-.el-menu {
-  border-right: none;
+/* Scrollbar for sidebar */
+aside::-webkit-scrollbar {
+  width: 4px;
 }
 
-.header-container {
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+aside::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+aside::-webkit-scrollbar-thumb {
+  background: #39393B;
+  border-radius: 2px;
 }
 
-.collapse-btn {
-  cursor: pointer;
-  color: #666;
-}
-
-.collapse-btn:hover {
-  color: #409EFF;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: #333;
-}
-
-.username {
-  font-size: 14px;
-}
-
-.main-container {
-  background-color: #f5f7fa;
-  padding: 0;
-  overflow: auto;
+aside::-webkit-scrollbar-thumb:hover {
+  background: #707072;
 }
 </style>

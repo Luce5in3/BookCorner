@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getBooks, getCategoryTree } from '@/api/books'
 import { getPublishedAnnouncements } from '@/api/announcements'
 import { BOOK_STATUS } from '@/utils/format'
+import imageCache from '@/utils/imageCache'
 
 const router = useRouter()
 
@@ -20,6 +21,7 @@ const searchParams = ref({
 })
 
 const total = ref(0)
+const coverUrls = ref({}) // 本地缓存的封面 URL 映射表
 
 // 公告详情弹窗
 const announcementVisible = ref(false)
@@ -33,13 +35,22 @@ async function fetchBooks() {
     if (!params.search) delete params.search
     
     const data = await getBooks(params)
-    books.value = data.results || []
+    const newBooks = data.results || []
+    books.value = newBooks
     total.value = data.count || 0
+
+    // 预加载封面到本地缓存
+    const urlMap = await imageCache.preloadImages(newBooks)
+    coverUrls.value = { ...coverUrls.value, ...urlMap }
   } catch (error) {
     console.error('获取图书失败:', error)
   } finally {
     loading.value = false
   }
+}
+
+function getCoverUrl(book) {
+  return coverUrls.value[book.id] || book.cover_url || '/default-cover.png'
 }
 
 async function fetchCategories() {
@@ -83,6 +94,11 @@ onMounted(() => {
   fetchBooks()
   fetchCategories()
   fetchAnnouncements()
+})
+
+onUnmounted(() => {
+  // 释放 blob URL，避免内存泄漏
+  imageCache.revokeUrls(coverUrls.value)
 })
 </script>
 
@@ -138,7 +154,7 @@ onMounted(() => {
           <el-card class="book-card" shadow="hover" @click="goToDetail(book.id)">
             <div class="book-cover">
               <el-image
-                :src="book.cover_url || '/default-cover.png'"
+                :src="getCoverUrl(book)"
                 fit="cover"
                 class="cover-img"
               >

@@ -39,141 +39,123 @@ async function handleLogout() {
 </script>
 
 <template>
-  <el-container class="h-full" direction="vertical">
-    <!-- 顶部导航 -->
-    <el-header class="header-container">
-      <div class="header-content">
-        <div class="logo" @click="router.push('/reader/home')">
-          <el-icon size="28" color="#409EFF"><Reading /></el-icon>
-          <span class="logo-text">图书角</span>
+  <div class="min-h-screen flex flex-col bg-light-gray">
+    <!-- Header - Nike Style Sticky Nav -->
+    <header class="sticky top-0 z-50 bg-nike-white border-b border-border-secondary">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 h-[60px] flex items-center justify-between">
+        <!-- Logo -->
+        <div 
+          class="flex items-center gap-2 cursor-pointer"
+          @click="router.push('/reader/home')"
+        >
+          <div class="w-8 h-8 bg-nike-black rounded-full flex items-center justify-center">
+            <el-icon size="18" color="#FFFFFF"><Reading /></el-icon>
+          </div>
+          <span class="text-h3 font-medium text-text-primary">图书角</span>
         </div>
         
-        <el-menu
-          :default-active="activeIndex"
-          mode="horizontal"
-          :ellipsis="false"
-          @select="router.push"
-        >
-          <el-menu-item v-for="item in navItems" :key="item.path" :index="item.path">
+        <!-- Navigation -->
+        <nav class="hidden md:flex items-center gap-8">
+          <router-link
+            v-for="item in navItems"
+            :key="item.path"
+            :to="item.path"
+            class="text-link font-medium text-text-primary hover:text-text-secondary transition-colors duration-200 py-5 border-b-2 border-transparent"
+            :class="{ 'border-nike-black !text-text-primary': activeIndex === item.path }"
+          >
             {{ item.title }}
-          </el-menu-item>
-        </el-menu>
+          </router-link>
+        </nav>
         
-        <div class="header-right">
-          <el-dropdown>
-            <span class="user-info">
-              <el-avatar :size="32" icon="UserFilled" />
-              <span class="username">{{ username }}</span>
-              <el-icon><ArrowDown /></el-icon>
-            </span>
+        <!-- User Menu -->
+        <div class="flex items-center gap-4">
+          <el-dropdown trigger="click">
+            <div class="flex items-center gap-2 cursor-pointer py-2">
+              <div class="w-8 h-8 bg-light-gray rounded-full flex items-center justify-center">
+                <el-icon size="16" class="text-text-secondary"><UserFilled /></el-icon>
+              </div>
+              <span class="text-body-medium text-text-primary hidden sm:block">{{ username }}</span>
+              <el-icon class="text-text-secondary"><ArrowDown /></el-icon>
+            </div>
             <template #dropdown>
-              <el-dropdown-menu>
+              <el-dropdown-menu class="!rounded-card !border-border-secondary">
                 <el-dropdown-item v-if="authStore.isAdmin" @click="router.push('/admin/dashboard')">
-                  <el-icon><Setting /></el-icon>管理后台
+                  <el-icon class="mr-2"><Setting /></el-icon>管理后台
                 </el-dropdown-item>
                 <el-dropdown-item :divided="authStore.isAdmin" @click="handleLogout">
-                  <el-icon><SwitchButton /></el-icon>退出登录
+                  <el-icon class="mr-2"><SwitchButton /></el-icon>退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
         </div>
       </div>
-    </el-header>
+    </header>
     
-    <!-- 主内容区 -->
-    <el-main class="main-container">
-      <div class="content-wrapper">
+    <!-- Mobile Navigation -->
+    <nav class="md:hidden bg-nike-white border-b border-border-secondary">
+      <div class="flex overflow-x-auto scrollbar-hide">
+        <router-link
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.path"
+          class="flex-shrink-0 px-5 py-3 text-link-sm font-medium text-text-primary hover:text-text-secondary transition-colors whitespace-nowrap"
+          :class="{ 'text-text-primary border-b-2 border-nike-black': activeIndex === item.path }"
+        >
+          {{ item.title }}
+        </router-link>
+      </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="flex-1">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6">
         <router-view />
       </div>
-    </el-main>
+    </main>
     
-    <!-- 底部 -->
-    <el-footer class="footer-container">
-      <p>图书角图书管理系统 © 2024</p>
-    </el-footer>
-  </el-container>
+    <!-- Footer -->
+    <footer class="bg-nike-white border-t border-border-secondary py-5">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 text-center">
+        <p class="text-small text-text-secondary">图书角图书管理系统 &copy; 2024</p>
+      </div>
+    </footer>
+  </div>
 </template>
 
 <style scoped>
-.header-container {
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 0;
-  height: 60px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* Hide scrollbar for mobile nav */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  margin-right: 40px;
+/* Router link active state */
+.router-link-active {
+  color: #111111;
 }
 
-.logo-text {
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
+/* Dropdown menu styling */
+:deep(.el-dropdown-menu) {
+  border-radius: 20px !important;
+  border: 1px solid #CACACB !important;
+  box-shadow: none !important;
+  padding: 8px !important;
 }
 
-.el-menu {
-  flex: 1;
-  border-bottom: none;
+:deep(.el-dropdown-menu__item) {
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #111111 !important;
 }
 
-.el-menu--horizontal > .el-menu-item {
-  height: 60px;
-  line-height: 60px;
-}
-
-.header-right {
-  margin-left: 20px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: #333;
-}
-
-.username {
-  font-size: 14px;
-}
-
-.main-container {
-  background-color: #f5f7fa;
-  min-height: calc(100vh - 120px);
-  padding: 20px;
-}
-
-.content-wrapper {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.footer-container {
-  background: #fff;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
-  font-size: 14px;
-  border-top: 1px solid #eee;
+:deep(.el-dropdown-menu__item:hover) {
+  background-color: #F5F5F5 !important;
 }
 </style>
