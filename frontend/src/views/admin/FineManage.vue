@@ -42,56 +42,62 @@ onMounted(() => { fetchFines() })
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="search-bar">
-      <el-row :gutter="20">
-        <el-col :span="4">
+  <div>
+    <!-- Search Bar -->
+    <div class="bg-apple-white rounded-large shadow-card p-5 mb-5">
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="w-[140px]">
           <el-select v-model="queryParams.status" placeholder="状态" clearable>
             <el-option v-for="(label, value) in FINE_STATUS" :key="value" :label="label" :value="Number(value)" />
           </el-select>
-        </el-col>
-        <el-col :span="4">
-          <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
-        </el-col>
-      </el-row>
+        </div>
+        <button class="h-[40px] px-4 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" @click="handleSearch">搜索</button>
+      </div>
     </div>
     
-    <div class="table-container">
-      <el-table v-loading="loading" :data="fines" stripe>
-        <el-table-column prop="user_name" label="用户" width="100" />
-        <el-table-column prop="book_title" label="相关图书" min-width="200" />
-        <el-table-column prop="reason" label="原因" width="120" />
-        <el-table-column prop="amount" label="金额" width="100">
-          <template #default="{ row }">
-            <span class="amount">{{ formatMoney(row.amount) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="生成时间" width="170">
-          <template #default="{ row }">{{ formatDateTime(row.created_at) }}</template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="80">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status, 'fine')">{{ FINE_STATUS[row.status] }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="100" fixed="right">
-          <template #default="{ row }">
-            <el-button v-if="row.status === 0" type="warning" link @click="handleWaive(row)">免除</el-button>
-            <span v-else class="text-muted">-</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+    <!-- Table -->
+    <div class="bg-apple-white rounded-large shadow-card overflow-hidden">
+      <div class="p-5">
+        <el-table v-loading="loading" :data="fines" class="apple-table">
+          <el-table-column prop="user_name" label="用户" width="100" />
+          <el-table-column prop="book_title" label="相关图书" min-width="200">
+            <template #default="{ row }">
+              <span class="font-semibold text-near-black tracking-[-0.224px]">{{ row.book_title }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="reason" label="原因" width="120" />
+          <el-table-column prop="amount" label="金额" width="100">
+            <template #default="{ row }">
+              <span class="text-danger-red font-semibold tracking-[-0.224px]">{{ formatMoney(row.amount) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="created_at" label="生成时间" width="170">
+            <template #default="{ row }"><span class="text-text-secondary">{{ formatDateTime(row.created_at) }}</span></template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="80">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status, 'fine')" size="small" class="!border-none !rounded-pill !text-[12px]">{{ FINE_STATUS[row.status] }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <button v-if="row.status === 0" class="text-[14px] text-[#E6A23C] hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleWaive(row)">免除</button>
+              <span v-else class="text-text-tertiary">-</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.search-bar { background: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-.table-container { background: #fff; padding: 20px; border-radius: 4px; }
+.text-danger-red { color: #FF3B30; }
 .pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
-.amount { color: #F56C6C; font-weight: 600; }
-.text-muted { color: #c0c4cc; }
+:deep(.apple-table) { --el-table-border-color: rgba(0, 0, 0, 0.06); --el-table-header-bg-color: #f5f5f7; }
+:deep(.apple-table th.el-table__cell) { font-size: 12px !important; font-weight: 600 !important; color: rgba(0, 0, 0, 0.48) !important; letter-spacing: -0.12px !important; }
+:deep(.apple-table td.el-table__cell) { font-size: 14px !important; letter-spacing: -0.224px !important; }
 </style>

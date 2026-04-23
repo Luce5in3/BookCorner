@@ -48,15 +48,15 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-nike-white">
-    <div class="w-full max-w-[440px] px-6">
-      <!-- Logo Section -->
+  <div class="min-h-screen flex items-center justify-center bg-apple-white">
+    <div class="w-full max-w-[400px] px-6">
+      <!-- Logo Section - Apple Hero Style -->
       <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-nike-black rounded-full mb-6">
-          <el-icon size="32" color="#FFFFFF"><Reading /></el-icon>
+        <div class="inline-flex items-center justify-center w-14 h-14 bg-apple-black rounded-full mb-5">
+          <el-icon size="28" color="#FFFFFF"><Reading /></el-icon>
         </div>
-        <h1 class="text-h1 font-medium text-text-primary mb-2">图书角</h1>
-        <p class="text-body text-text-secondary">图书管理系统</p>
+        <h1 class="text-[40px] font-semibold text-near-black leading-[1.10] mb-1">图书角</h1>
+        <p class="text-[21px] font-normal text-text-secondary leading-[1.19] tracking-[0.231px]">图书管理系统</p>
       </div>
       
       <!-- Login Form -->
@@ -64,17 +64,17 @@ async function handleLogin() {
         ref="formRef"
         :model="form"
         :rules="rules"
-        class="space-y-5"
+        class="space-y-4"
       >
         <el-form-item prop="username" class="!mb-0">
           <el-input
             v-model="form.username"
             placeholder="请输入用户名"
             size="large"
-            class="nike-input"
+            class="apple-input"
           >
             <template #prefix>
-              <el-icon class="text-text-secondary"><User /></el-icon>
+              <el-icon class="text-text-tertiary"><User /></el-icon>
             </template>
           </el-input>
         </el-form-item>
@@ -85,38 +85,39 @@ async function handleLogin() {
             type="password"
             placeholder="请输入密码"
             size="large"
-            class="nike-input"
+            class="apple-input"
             show-password
             @keyup.enter="handleLogin"
           >
             <template #prefix>
-              <el-icon class="text-text-secondary"><Lock /></el-icon>
+              <el-icon class="text-text-tertiary"><Lock /></el-icon>
             </template>
           </el-input>
         </el-form-item>
-        
-        <el-form-item class="!mb-0 pt-2">
-          <button
-            type="button"
-            :disabled="loading"
-            class="w-full h-12 bg-nike-black text-nike-white font-medium text-button rounded-pill border-none cursor-pointer transition-all duration-200 hover:bg-text-secondary disabled:bg-text-disabled disabled:cursor-not-allowed"
-            @click="handleLogin"
-          >
-            <span v-if="loading" class="flex items-center justify-center gap-2">
-              <el-icon class="animate-spin"><Loading /></el-icon>
-              登录中...
-            </span>
-            <span v-else>登录</span>
-          </button>
-        </el-form-item>
       </el-form>
+
+      <!-- Login Button -->
+      <div class="mt-6">
+        <button
+          type="button"
+          :disabled="loading"
+          class="w-full h-[48px] bg-apple-blue text-white font-medium text-[17px] rounded-standard border-none cursor-pointer transition-all duration-200 hover:opacity-90 active:bg-btn-active active:text-near-black disabled:opacity-50 disabled:cursor-not-allowed leading-[48px]"
+          @click="handleLogin"
+        >
+          <span v-if="loading" class="flex items-center justify-center gap-2">
+            <el-icon class="animate-spin"><Loading /></el-icon>
+            登录中...
+          </span>
+          <span v-else>登录</span>
+        </button>
+      </div>
       
       <!-- Footer -->
       <div class="mt-8 text-center">
-        <span class="text-link-sm text-text-secondary">还没有账号？</span>
+        <span class="text-[14px] text-text-tertiary tracking-[-0.224px]">还没有账号？</span>
         <button 
           type="button"
-          class="ml-1 text-link-sm font-medium text-text-primary underline underline-offset-4 hover:text-text-secondary transition-colors"
+          class="ml-1 text-[14px] font-normal text-link-blue hover:underline underline-offset-2 transition-colors tracking-[-0.224px]"
           @click="router.push('/register')"
         >
           立即注册
@@ -127,27 +128,29 @@ async function handleLogin() {
 </template>
 
 <style scoped>
-/* Nike Style Input Overrides */
-:deep(.nike-input .el-input__wrapper) {
-  background-color: #F5F5F5 !important;
-  border-radius: 8px !important;
+/* Apple Style Input Overrides */
+:deep(.apple-input .el-input__wrapper) {
+  background-color: #fafafc !important;
+  border-radius: 11px !important;
   box-shadow: none !important;
-  padding: 0 16px !important;
-  height: 52px !important;
+  border: 3px solid rgba(0, 0, 0, 0.04) !important;
+  padding: 0 14px !important;
+  height: 48px !important;
 }
 
-:deep(.nike-input .el-input__inner) {
-  color: #111111 !important;
-  font-size: 16px !important;
+:deep(.apple-input .el-input__inner) {
+  color: #1d1d1f !important;
+  font-size: 17px !important;
   font-weight: 400 !important;
+  letter-spacing: -0.374px !important;
 }
 
-:deep(.nike-input .el-input__inner::placeholder) {
-  color: #707072 !important;
+:deep(.apple-input .el-input__inner::placeholder) {
+  color: rgba(0, 0, 0, 0.48) !important;
 }
 
-:deep(.nike-input .el-input__prefix) {
-  margin-right: 12px !important;
+:deep(.apple-input .el-input__prefix) {
+  margin-right: 10px !important;
 }
 
 /* Remove default form item margin */
@@ -156,8 +159,9 @@ async function handleLogin() {
 }
 
 :deep(.el-form-item__error) {
-  color: #D30005 !important;
+  color: #FF3B30 !important;
   font-size: 12px !important;
   padding-top: 4px !important;
+  letter-spacing: -0.12px !important;
 }
 </style>

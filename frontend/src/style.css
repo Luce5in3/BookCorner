@@ -1,34 +1,38 @@
-/* Nike Design System - Root Styles */
+/* Apple Design System - Root Styles */
 
 :root {
   /* Primary Colors */
-  --nike-black: #111111;
-  --nike-white: #FFFFFF;
-  
+  --apple-black: #000000;
+  --apple-white: #FFFFFF;
+
   /* Surface Colors */
-  --snow: #FAFAFA;
-  --light-gray: #F5F5F5;
-  --hover-gray: #E5E5E5;
-  --dark-surface: #28282A;
-  --deep-charcoal: #1F1F21;
-  --dark-hover: #39393B;
-  
+  --apple-gray: #f5f5f7;
+  --near-black: #1d1d1f;
+
+  /* Dark Surfaces */
+  --dark-surface-1: #272729;
+  --dark-surface-2: #262628;
+  --dark-surface-3: #28282a;
+  --dark-surface-4: #2a2a2d;
+  --dark-surface-5: #242426;
+
+  /* Interactive Colors */
+  --apple-blue: #0071e3;
+  --link-blue: #0066cc;
+  --bright-blue: #2997ff;
+
   /* Text Colors */
-  --text-primary: #111111;
-  --text-secondary: #707072;
-  --text-disabled: #9E9EA0;
-  
-  /* Border Colors */
-  --border-primary: #707072;
-  --border-secondary: #CACACB;
-  --border-active: #111111;
-  
-  /* Semantic Colors */
-  --nike-red: #D30005;
-  --success-green: #007D48;
-  --link-blue: #1151FF;
-  --warning-yellow: #FEDF35;
-  --focus-ring: rgba(39, 93, 197, 1);
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-tertiary: rgba(0, 0, 0, 0.48);
+
+  /* Button States */
+  --btn-active: #ededf2;
+  --btn-default-light: #fafafc;
+  --overlay: rgba(210, 210, 215, 0.64);
+
+  /* Focus */
+  --sk-focus-color: #0071e3;
 }
 
 /* Base Reset */
@@ -40,16 +44,16 @@
 
 /* Base Typography */
 html {
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  font-family: -apple-system, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   font-size: 16px;
-  line-height: 1.75;
+  line-height: 1.47;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   color: var(--text-primary);
-  background: var(--nike-white);
+  background: var(--apple-white);
 }
 
 #app {
@@ -57,41 +61,47 @@ body {
   height: 100%;
 }
 
-/* Typography */
+/* Typography - Apple SF Pro Display for 20px+, SF Pro Text below */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 500;
+  font-family: -apple-system, 'SF Pro Display', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+  font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.10;
 }
 
 h1 {
-  font-size: 32px;
+  font-size: 56px;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
 }
 
 h2 {
-  font-size: 24px;
+  font-size: 40px;
+  line-height: 1.10;
 }
 
 h3 {
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 28px;
+  line-height: 1.14;
+  font-weight: 400;
+  letter-spacing: 0.196px;
 }
 
 p {
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--text-primary);
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--text-secondary);
 }
 
-/* Focus Styles */
+/* Focus Styles - Apple Blue */
 *:focus-visible {
-  outline: 2px solid var(--focus-ring);
+  outline: 2px solid var(--sk-focus-color);
   outline-offset: 2px;
 }
 
 /* Selection */
 ::selection {
-  background-color: var(--nike-black);
-  color: var(--nike-white);
+  background-color: var(--apple-blue);
+  color: var(--apple-white);
 }

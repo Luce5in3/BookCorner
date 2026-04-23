@@ -67,94 +67,98 @@ onMounted(() => {
 
 <template>
   <div class="page-container">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>我的借阅</span>
-        </div>
-      </template>
-      
-      <el-table v-loading="loading" :data="borrows" stripe>
-        <el-table-column prop="book_title" label="书名" min-width="200">
-          <template #default="{ row }">
-            <span class="book-title">{{ row.book_title }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="book_copy_barcode" label="条码" width="120" />
-        <el-table-column prop="borrow_at" label="借阅时间" width="170">
-          <template #default="{ row }">
-            {{ formatDateTime(row.borrow_at) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="due_at" label="应还时间" width="170">
-          <template #default="{ row }">
-            <span :class="{ 'text-danger': isOverdue(row) }">
-              {{ formatDateTime(row.due_at) }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="return_at" label="归还时间" width="170">
-          <template #default="{ row }">
-            {{ row.return_at ? formatDateTime(row.return_at) : '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status, 'borrow')">
-              {{ BORROW_STATUS[row.status] }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="100" fixed="right">
-          <template #default="{ row }">
-            <el-button
-              v-if="canRenew(row)"
-              type="primary"
-              link
-              @click="handleRenew(row)"
-            >
-              续借
-            </el-button>
-            <span v-else class="text-muted">-</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination
-          v-model:current-page="queryParams.page"
-          :page-size="queryParams.page_size"
-          :total="total"
-          layout="prev, pager, next, total"
-          @current-change="handlePageChange"
-        />
+    <div class="bg-apple-white rounded-large shadow-card overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-[rgba(0,0,0,0.06)]">
+        <h2 class="text-[28px] font-normal leading-[1.14] tracking-[0.196px] text-near-black">我的借阅</h2>
       </div>
-    </el-card>
+      
+      <div class="p-6">
+        <el-table v-loading="loading" :data="borrows" class="apple-table">
+          <el-table-column prop="book_title" label="书名" min-width="200">
+            <template #default="{ row }">
+              <span class="font-semibold text-near-black tracking-[-0.224px]">{{ row.book_title }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="book_copy_barcode" label="条码" width="120" />
+          <el-table-column prop="borrow_at" label="借阅时间" width="170">
+            <template #default="{ row }">
+              <span class="text-text-secondary">{{ formatDateTime(row.borrow_at) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="due_at" label="应还时间" width="170">
+            <template #default="{ row }">
+              <span :class="isOverdue(row) ? 'text-danger-red font-semibold' : 'text-text-secondary'">
+                {{ formatDateTime(row.due_at) }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="return_at" label="归还时间" width="170">
+            <template #default="{ row }">
+              <span class="text-text-secondary">{{ row.return_at ? formatDateTime(row.return_at) : '-' }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="100">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status, 'borrow')" size="small" class="!border-none !rounded-pill !text-[12px]">
+                {{ BORROW_STATUS[row.status] }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <button
+                v-if="canRenew(row)"
+                class="text-[14px] text-link-blue hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer"
+                @click="handleRenew(row)"
+              >
+                续借
+              </button>
+              <span v-else class="text-text-tertiary">-</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination
+            v-model:current-page="queryParams.page"
+            :page-size="queryParams.page_size"
+            :total="total"
+            layout="prev, pager, next, total"
+            @current-change="handlePageChange"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.book-title {
-  font-weight: 500;
-}
-
-.text-danger {
-  color: #F56C6C;
-}
-
-.text-muted {
-  color: #c0c4cc;
+.text-danger-red {
+  color: #FF3B30;
 }
 
 .pagination-container {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* Apple Table Overrides */
+:deep(.apple-table) {
+  --el-table-border-color: rgba(0, 0, 0, 0.06);
+  --el-table-header-bg-color: #f5f5f7;
+}
+
+:deep(.apple-table th.el-table__cell) {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: rgba(0, 0, 0, 0.48) !important;
+  letter-spacing: -0.12px !important;
+}
+
+:deep(.apple-table td.el-table__cell) {
+  font-size: 14px !important;
+  letter-spacing: -0.224px !important;
 }
 </style>

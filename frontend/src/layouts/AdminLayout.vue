@@ -48,42 +48,42 @@ async function handleLogout() {
 </script>
 
 <template>
-  <div class="min-h-screen flex bg-light-gray">
-    <!-- Sidebar - Nike Dark Theme -->
+  <div class="min-h-screen flex bg-apple-gray">
+    <!-- Sidebar - Apple Dark Theme -->
     <aside 
-      class="fixed left-0 top-0 h-screen bg-nike-black transition-all duration-300 z-50 flex flex-col"
+      class="fixed left-0 top-0 h-screen bg-near-black transition-all duration-300 z-50 flex flex-col"
       :class="isCollapse ? 'w-16' : 'w-56'"
     >
       <!-- Logo -->
-      <div class="h-[60px] flex items-center justify-center gap-2 border-b border-grey-700">
-        <div class="w-8 h-8 bg-nike-white rounded-full flex items-center justify-center flex-shrink-0">
-          <el-icon size="18" color="#111111"><Reading /></el-icon>
+      <div class="h-[48px] flex items-center justify-center gap-2 border-b border-[rgba(255,255,255,0.1)]">
+        <div class="w-7 h-7 bg-apple-blue rounded-full flex items-center justify-center flex-shrink-0">
+          <el-icon size="14" color="#FFFFFF"><Reading /></el-icon>
         </div>
         <span 
           v-if="!isCollapse" 
-          class="text-h3 font-medium text-nike-white whitespace-nowrap"
+          class="text-[15px] font-semibold text-white tracking-[-0.224px]"
         >
           图书角管理
         </span>
       </div>
       
       <!-- Menu -->
-      <nav class="flex-1 py-4 overflow-y-auto">
+      <nav class="flex-1 py-3 overflow-y-auto">
         <ul class="space-y-1 px-2">
           <li v-for="item in menuItems" :key="item.index">
             <button
-              class="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-standard transition-all duration-200 text-left"
               :class="activeMenu === item.index 
-                ? 'bg-grey-700 text-nike-white' 
-                : 'text-grey-400 hover:bg-grey-700 hover:text-nike-white'"
+                ? 'bg-apple-blue text-white' 
+                : 'text-white/70 hover:bg-[rgba(255,255,255,0.08)] hover:text-white'"
               @click="handleMenuSelect(item.index)"
             >
-              <el-icon size="18" class="flex-shrink-0">
+              <el-icon size="16" class="flex-shrink-0">
                 <component :is="item.icon" />
               </el-icon>
               <span 
                 v-if="!isCollapse" 
-                class="text-link-sm font-medium whitespace-nowrap"
+                class="text-[14px] font-normal tracking-[-0.224px] whitespace-nowrap"
               >
                 {{ item.title }}
               </span>
@@ -93,12 +93,12 @@ async function handleLogout() {
       </nav>
       
       <!-- Collapse Button -->
-      <div class="p-3 border-t border-grey-700">
+      <div class="p-2.5 border-t border-[rgba(255,255,255,0.1)]">
         <button
-          class="w-full flex items-center justify-center p-2 rounded-lg text-grey-400 hover:bg-grey-700 hover:text-nike-white transition-all duration-200"
+          class="w-full flex items-center justify-center p-2 rounded-standard text-white/70 hover:bg-[rgba(255,255,255,0.08)] hover:text-white transition-all duration-200"
           @click="toggleCollapse"
         >
-          <el-icon size="18">
+          <el-icon size="16">
             <component :is="isCollapse ? 'Expand' : 'Fold'" />
           </el-icon>
         </button>
@@ -110,27 +110,20 @@ async function handleLogout() {
       class="flex-1 flex flex-col min-h-screen transition-all duration-300"
       :class="isCollapse ? 'ml-16' : 'ml-56'"
     >
-      <!-- Header -->
-      <header class="sticky top-0 z-40 bg-nike-white border-b border-border-secondary h-[60px] flex items-center justify-between px-6">
-        <!-- Breadcrumb -->
-        <div class="flex items-center gap-2">
-          <span class="text-link-sm text-text-secondary">管理后台</span>
-          <span class="text-link-sm text-text-secondary">/</span>
-          <span class="text-link-sm font-medium text-text-primary">{{ route.meta.title }}</span>
-        </div>
-        
+      <!-- Header - Apple Glass -->
+      <header class="sticky top-0 z-40 bg-[rgba(255,255,255,0.72)] backdrop-blur-[20px] backdrop-saturate-[180%] border-b border-[rgba(0,0,0,0.1)] h-[48px] flex items-center justify-end px-5">
         <!-- User Menu -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <el-dropdown trigger="click">
-            <div class="flex items-center gap-2 cursor-pointer py-2">
-              <div class="w-8 h-8 bg-light-gray rounded-full flex items-center justify-center">
-                <el-icon size="16" class="text-text-secondary"><UserFilled /></el-icon>
+            <div class="flex items-center gap-2 cursor-pointer py-1.5">
+              <div class="w-7 h-7 bg-apple-gray rounded-full flex items-center justify-center">
+                <el-icon size="14" class="text-text-tertiary"><UserFilled /></el-icon>
               </div>
-              <span class="text-body-medium text-text-primary">{{ username }}</span>
-              <el-icon class="text-text-secondary"><ArrowDown /></el-icon>
+              <span class="text-[14px] text-text-secondary tracking-[-0.224px]">{{ username }}</span>
+              <el-icon size="12" class="text-text-tertiary"><ArrowDown /></el-icon>
             </div>
             <template #dropdown>
-              <el-dropdown-menu class="!rounded-card !border-border-secondary">
+              <el-dropdown-menu class="!rounded-standard">
                 <el-dropdown-item @click="router.push('/reader/home')">
                   <el-icon class="mr-2"><House /></el-icon>读者端
                 </el-dropdown-item>
@@ -144,7 +137,7 @@ async function handleLogout() {
       </header>
       
       <!-- Main Content -->
-      <main class="flex-1 p-6">
+      <main class="flex-1 p-5">
         <router-view />
       </main>
     </div>
@@ -152,24 +145,25 @@ async function handleLogout() {
 </template>
 
 <style scoped>
-/* Dropdown menu styling */
+/* Dropdown menu styling - Apple */
 :deep(.el-dropdown-menu) {
-  border-radius: 20px !important;
-  border: 1px solid #CACACB !important;
-  box-shadow: none !important;
-  padding: 8px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  box-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px !important;
+  padding: 4px !important;
 }
 
 :deep(.el-dropdown-menu__item) {
-  border-radius: 12px !important;
-  padding: 10px 16px !important;
+  border-radius: 5px !important;
+  padding: 8px 12px !important;
   font-size: 14px !important;
-  font-weight: 500 !important;
-  color: #111111 !important;
+  font-weight: 400 !important;
+  color: #1d1d1f !important;
+  letter-spacing: -0.224px !important;
 }
 
 :deep(.el-dropdown-menu__item:hover) {
-  background-color: #F5F5F5 !important;
+  background-color: #f5f5f7 !important;
 }
 
 /* Scrollbar for sidebar */
@@ -182,11 +176,11 @@ aside::-webkit-scrollbar-track {
 }
 
 aside::-webkit-scrollbar-thumb {
-  background: #39393B;
+  background: #2a2a2d;
   border-radius: 2px;
 }
 
 aside::-webkit-scrollbar-thumb:hover {
-  background: #707072;
+  background: #3a3a3d;
 }
 </style>

@@ -127,72 +127,68 @@ onMounted(() => { fetchBorrows() })
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="search-bar">
-      <el-row :gutter="20" align="middle">
-        <el-col :span="4">
+  <div>
+    <!-- Search Bar -->
+    <div class="bg-apple-white rounded-large shadow-card p-5 mb-5">
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="w-[140px]">
           <el-select v-model="queryParams.status" placeholder="状态" clearable>
             <el-option v-for="(label, value) in BORROW_STATUS" :key="value" :label="label" :value="Number(value)" />
           </el-select>
-        </el-col>
-        <el-col :span="4">
-          <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
-        </el-col>
-        <el-col :span="16" style="text-align: right;">
-          <el-button type="success" icon="Plus" @click="openBorrowDialog">办理借阅</el-button>
-        </el-col>
-      </el-row>
+        </div>
+        <button class="h-[40px] px-4 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" @click="handleSearch">搜索</button>
+        <div class="flex-1"></div>
+        <button class="h-[40px] px-4 bg-near-black text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-85 transition-opacity tracking-[-0.224px]" @click="openBorrowDialog">办理借阅</button>
+      </div>
     </div>
     
-    <div class="table-container">
-      <el-table v-loading="loading" :data="borrows" stripe :row-class-name="({ row }) => isOverdue(row) ? 'overdue-row' : ''">
-        <el-table-column prop="real_name" label="用户" width="100">
-          <template #default="{ row }">{{ row.real_name || row.username }}</template>
-        </el-table-column>
-        <el-table-column prop="book_title" label="图书" min-width="200" />
-        <el-table-column prop="barcode" label="条码" width="120" />
-        <el-table-column prop="borrow_at" label="借阅时间" width="170">
-          <template #default="{ row }">{{ formatDateTime(row.borrow_at) }}</template>
-        </el-table-column>
-        <el-table-column prop="due_at" label="应还时间" width="170">
-          <template #default="{ row }">
-            <span :class="{ 'text-danger': isOverdue(row) }">{{ formatDateTime(row.due_at) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status, 'borrow')">{{ BORROW_STATUS[row.status] }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
-          <template #default="{ row }">
-            <template v-if="row.status === 1 || row.status === 2">
-              <el-button type="success" link @click="handleReturn(row)">归还</el-button>
-              <el-button type="danger" link @click="handleLost(row)">丢失</el-button>
+    <!-- Table -->
+    <div class="bg-apple-white rounded-large shadow-card overflow-hidden">
+      <div class="p-5">
+        <el-table v-loading="loading" :data="borrows" class="apple-table" :row-class-name="({ row }) => isOverdue(row) ? 'overdue-row' : ''">
+          <el-table-column prop="real_name" label="用户" width="100">
+            <template #default="{ row }">{{ row.real_name || row.username }}</template>
+          </el-table-column>
+          <el-table-column prop="book_title" label="图书" min-width="200">
+            <template #default="{ row }">
+              <span class="font-semibold text-near-black tracking-[-0.224px]">{{ row.book_title }}</span>
             </template>
-            <span v-else class="text-muted">-</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+          </el-table-column>
+          <el-table-column prop="barcode" label="条码" width="120" />
+          <el-table-column prop="borrow_at" label="借阅时间" width="170">
+            <template #default="{ row }"><span class="text-text-secondary">{{ formatDateTime(row.borrow_at) }}</span></template>
+          </el-table-column>
+          <el-table-column prop="due_at" label="应还时间" width="170">
+            <template #default="{ row }">
+              <span :class="isOverdue(row) ? 'text-danger-red font-semibold' : 'text-text-secondary'">{{ formatDateTime(row.due_at) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="100">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status, 'borrow')" size="small" class="!border-none !rounded-pill !text-[12px]">{{ BORROW_STATUS[row.status] }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="150" fixed="right">
+            <template #default="{ row }">
+              <template v-if="row.status === 1 || row.status === 2">
+                <button class="text-[14px] text-success-green hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer mr-2" @click="handleReturn(row)">归还</button>
+                <button class="text-[14px] text-danger-red hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleLost(row)">丢失</button>
+              </template>
+              <span v-else class="text-text-tertiary">-</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+        </div>
       </div>
     </div>
     
     <!-- 办理借阅对话框 -->
     <el-dialog v-model="borrowDialogVisible" title="办理借阅" width="500px">
-      <el-form ref="borrowFormRef" :model="borrowForm" :rules="borrowRules" label-width="100px">
+      <el-form ref="borrowFormRef" :model="borrowForm" :rules="borrowRules" label-width="100px" class="apple-form">
         <el-form-item label="读者" prop="user_id">
-          <el-select
-            v-model="borrowForm.user_id"
-            filterable
-            remote
-            reserve-keyword
-            placeholder="输入用户名/姓名/手机号搜索"
-            :remote-method="handleSearchUser"
-            :loading="userLoading"
-            style="width: 100%;"
-          >
+          <el-select v-model="borrowForm.user_id" filterable remote reserve-keyword placeholder="输入用户名/姓名/手机号搜索" :remote-method="handleSearchUser" :loading="userLoading" style="width: 100%;">
             <el-option v-for="item in userOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -201,23 +197,24 @@ onMounted(() => { fetchBorrows() })
         </el-form-item>
         <el-form-item label="借阅天数">
           <el-input-number v-model="borrowForm.days" :min="1" :max="90" />
-          <span class="ml-10 text-muted">天</span>
+          <span class="ml-2 text-text-tertiary text-[12px]">天</span>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="borrowDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="borrowSubmitting" @click="submitBorrow">确定借出</el-button>
+        <button class="px-4 py-2 text-[14px] text-text-secondary rounded-standard border border-[rgba(0,0,0,0.1)] bg-transparent cursor-pointer hover:bg-apple-gray transition-colors tracking-[-0.224px] mr-2" @click="borrowDialogVisible = false">取消</button>
+        <button class="px-4 py-2 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" :disabled="borrowSubmitting" @click="submitBorrow">确定借出</button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <style scoped>
-.search-bar { background: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-.table-container { background: #fff; padding: 20px; border-radius: 4px; }
+.text-danger-red { color: #FF3B30; }
 .pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
-.text-danger { color: #F56C6C; }
-.text-muted { color: #909399; }
-.ml-10 { margin-left: 10px; }
-:deep(.overdue-row) { background-color: #fef0f0 !important; }
+
+:deep(.apple-table) { --el-table-border-color: rgba(0, 0, 0, 0.06); --el-table-header-bg-color: #f5f5f7; }
+:deep(.apple-table th.el-table__cell) { font-size: 12px !important; font-weight: 600 !important; color: rgba(0, 0, 0, 0.48) !important; letter-spacing: -0.12px !important; }
+:deep(.apple-table td.el-table__cell) { font-size: 14px !important; letter-spacing: -0.224px !important; }
+:deep(.overdue-row) { background-color: rgba(255, 59, 48, 0.04) !important; }
+.apple-form :deep(.el-form-item__label) { font-size: 14px !important; font-weight: 600 !important; color: #1d1d1f !important; letter-spacing: -0.224px !important; }
 </style>

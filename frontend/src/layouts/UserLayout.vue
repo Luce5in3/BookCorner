@@ -39,19 +39,17 @@ async function handleLogout() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-light-gray">
-    <!-- Header - Nike Style Sticky Nav -->
-    <header class="sticky top-0 z-50 bg-nike-white border-b border-border-secondary">
-      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 h-[60px] flex items-center justify-between">
+  <div class="min-h-screen flex flex-col bg-apple-gray">
+    <!-- Header - Apple Glass Navigation -->
+    <header class="sticky top-0 z-50 bg-[rgba(0,0,0,0.8)] backdrop-blur-[20px] backdrop-saturate-[180%]">
+      <div class="max-w-[980px] mx-auto px-4 sm:px-6 h-[52px] flex items-center justify-between">
         <!-- Logo -->
         <div 
-          class="flex items-center gap-2 cursor-pointer"
+          class="flex items-center gap-2.5 cursor-pointer"
           @click="router.push('/reader/home')"
         >
-          <div class="w-8 h-8 bg-nike-black rounded-full flex items-center justify-center">
-            <el-icon size="18" color="#FFFFFF"><Reading /></el-icon>
-          </div>
-          <span class="text-h3 font-medium text-text-primary">图书角</span>
+          <el-icon size="20" color="#FFFFFF"><Reading /></el-icon>
+          <span class="text-[16px] font-semibold text-white tracking-[-0.224px]">图书角</span>
         </div>
         
         <!-- Navigation -->
@@ -60,25 +58,25 @@ async function handleLogout() {
             v-for="item in navItems"
             :key="item.path"
             :to="item.path"
-            class="text-link font-medium text-text-primary hover:text-text-secondary transition-colors duration-200 py-5 border-b-2 border-transparent"
-            :class="{ 'border-nike-black !text-text-primary': activeIndex === item.path }"
+            class="text-[16px] font-normal text-white/80 hover:text-white transition-opacity duration-200 tracking-[-0.224px]"
+            :class="{ 'text-white font-medium underline underline-offset-4 decoration-white': activeIndex === item.path }"
           >
             {{ item.title }}
           </router-link>
         </nav>
         
         <!-- User Menu -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <el-dropdown trigger="click">
             <div class="flex items-center gap-2 cursor-pointer py-2">
-              <div class="w-8 h-8 bg-light-gray rounded-full flex items-center justify-center">
-                <el-icon size="16" class="text-text-secondary"><UserFilled /></el-icon>
+              <div class="w-7 h-7 bg-dark-surface-3 rounded-full flex items-center justify-center">
+                <el-icon size="14" color="#FFFFFF"><UserFilled /></el-icon>
               </div>
-              <span class="text-body-medium text-text-primary hidden sm:block">{{ username }}</span>
-              <el-icon class="text-text-secondary"><ArrowDown /></el-icon>
+              <span class="text-[15px] text-white/80 hidden sm:block tracking-[-0.224px]">{{ username }}</span>
+              <el-icon size="12" color="rgba(255,255,255,0.48)"><ArrowDown /></el-icon>
             </div>
             <template #dropdown>
-              <el-dropdown-menu class="!rounded-card !border-border-secondary">
+              <el-dropdown-menu class="!rounded-standard !border-[rgba(0,0,0,0.04)]">
                 <el-dropdown-item v-if="authStore.isAdmin" @click="router.push('/admin/dashboard')">
                   <el-icon class="mr-2"><Setting /></el-icon>管理后台
                 </el-dropdown-item>
@@ -93,14 +91,14 @@ async function handleLogout() {
     </header>
     
     <!-- Mobile Navigation -->
-    <nav class="md:hidden bg-nike-white border-b border-border-secondary">
+    <nav class="md:hidden bg-apple-gray border-b border-[rgba(0,0,0,0.04)]">
       <div class="flex overflow-x-auto scrollbar-hide">
         <router-link
           v-for="item in navItems"
           :key="item.path"
           :to="item.path"
-          class="flex-shrink-0 px-5 py-3 text-link-sm font-medium text-text-primary hover:text-text-secondary transition-colors whitespace-nowrap"
-          :class="{ 'text-text-primary border-b-2 border-nike-black': activeIndex === item.path }"
+          class="flex-shrink-0 px-5 py-3 text-[15px] text-text-secondary hover:text-text-primary transition-colors whitespace-nowrap tracking-[-0.224px]"
+          :class="{ '!text-near-black font-semibold': activeIndex === item.path }"
         >
           {{ item.title }}
         </router-link>
@@ -109,15 +107,15 @@ async function handleLogout() {
     
     <!-- Main Content -->
     <main class="flex-1">
-      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-6">
+      <div class="max-w-[980px] mx-auto px-4 sm:px-6 py-8">
         <router-view />
       </div>
     </main>
     
     <!-- Footer -->
-    <footer class="bg-nike-white border-t border-border-secondary py-5">
-      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 text-center">
-        <p class="text-small text-text-secondary">图书角图书管理系统 &copy; 2024</p>
+    <footer class="bg-apple-gray border-t border-[rgba(0,0,0,0.04)] py-4">
+      <div class="max-w-[980px] mx-auto px-4 sm:px-6 text-center">
+        <p class="text-micro">图书角图书管理系统 &copy; 2024</p>
       </div>
     </footer>
   </div>
@@ -136,26 +134,27 @@ async function handleLogout() {
 
 /* Router link active state */
 .router-link-active {
-  color: #111111;
+  color: #ffffff;
 }
 
-/* Dropdown menu styling */
+/* Dropdown menu styling - Apple */
 :deep(.el-dropdown-menu) {
-  border-radius: 20px !important;
-  border: 1px solid #CACACB !important;
-  box-shadow: none !important;
-  padding: 8px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  box-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px !important;
+  padding: 4px !important;
 }
 
 :deep(.el-dropdown-menu__item) {
-  border-radius: 12px !important;
-  padding: 10px 16px !important;
+  border-radius: 5px !important;
+  padding: 8px 12px !important;
   font-size: 14px !important;
-  font-weight: 500 !important;
-  color: #111111 !important;
+  font-weight: 400 !important;
+  color: #1d1d1f !important;
+  letter-spacing: -0.224px !important;
 }
 
 :deep(.el-dropdown-menu__item:hover) {
-  background-color: #F5F5F5 !important;
+  background-color: #f5f5f7 !important;
 }
 </style>

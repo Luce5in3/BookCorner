@@ -7,6 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.db import transaction
+from django.conf import settings
+import requests as http_requests
 
 from utils.response import success_response, error_response
 from utils.permissions import IsAdmin, IsAdminOrReadOnly
@@ -132,6 +134,80 @@ class CategoryFlatListView(APIView):
 
 
 # ==================== 图书视图 ====================
+
+
+class BookGenerateDescriptionView(APIView):
+    """
+    AI 生成图书简介
+    POST /api/books/{id}/generate-description/
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            book = Book.objects.select_related('category').get(pk=pk)
+        except Book.DoesNotExist:
+            return error_response(message='图书不存在', code=404, status_code=status.HTTP_404_NOT_FOUND)
+
+        # 检查 API Key 是否配置
+        if not settings.AI_API_KEY or settings.AI_API_KEY == 'your-ai-api-key-here':
+            return error_response(message='AI 服务未配置，请联系管理员', code=503, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # 获取用户关注的关键词
+        keywords = request.data.get('keywords', '').strip()
+
+        # 构建提示词
+        prompt = self._build_prompt(book, keywords)
+
+        try:
+            resp = http_requests.post(
+                f'{settings.AI_BASE_URL}/chat/completions',
+                headers={
+                    'Content-Type': 'application/json',
+                    'Authorization': f'Bearer {settings.AI_API_KEY}',
+                },
+                json={
+                    'model': settings.AI_MODEL,
+                    'messages': [
+                        {'role': 'system', 'content': '你是一位专业的图书编辑，擅长撰写简洁准确的图书简介。请用中文回答。'},
+                        {'role': 'user', 'content': prompt},
+                    ],
+                    'max_tokens': 500,
+                    'temperature': 0.7,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            description = data['choices'][0]['message']['content'].strip()
+        except http_requests.exceptions.Timeout:
+            return error_response(message='AI 服务响应超时，请稍后重试', code=504, status_code=status.HTTP_504_GATEWAY_TIMEOUT)
+        except Exception as e:
+            return error_response(message=f'AI 服务调用失败：{str(e)}', code=500, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # 保存到数据库
+        book.description = description
+        book.save(update_fields=['description'])
+
+        return success_response(data={'description': description}, message='简介生成成功')
+
+    @staticmethod
+    def _build_prompt(book, keywords=''):
+        """构建 AI 提示词"""
+        parts = ['请为以下图书撰写一段约300字的简介：']
+        parts.append(f'书名：《{book.title}》')
+        parts.append(f'作者：{book.author}')
+        if book.publisher:
+            parts.append(f'出版社：{book.publisher}')
+        if book.isbn:
+            parts.append(f'ISBN：{book.isbn}')
+        if book.category:
+            parts.append(f'分类：{book.category.name}')
+        if keywords:
+            parts.append(f'请重点关注以下方面：{keywords}')
+        parts.append('要求：内容客观，语言流畅，约300字左右。')
+        return '\n'.join(parts)
+
 
 class BookListView(generics.ListCreateAPIView):
     """

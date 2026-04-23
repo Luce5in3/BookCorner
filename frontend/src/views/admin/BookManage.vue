@@ -171,62 +171,71 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="search-bar">
-      <el-row :gutter="20">
-        <el-col :span="6">
-          <el-input v-model="queryParams.search" placeholder="搜索书名/作者" clearable @keyup.enter="handleSearch" />
-        </el-col>
-        <el-col :span="4">
+  <div>
+    <!-- Search Bar - Apple Filter Style -->
+    <div class="bg-apple-white rounded-large shadow-card p-5 mb-5">
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="flex-1 min-w-[180px]">
+          <el-input v-model="queryParams.search" placeholder="搜索书名/作者" clearable class="apple-input" @keyup.enter="handleSearch" />
+        </div>
+        <div class="w-[160px]">
           <el-tree-select v-model="queryParams.category" :data="categories" :props="{ label: 'name', value: 'id', children: 'children' }" placeholder="选择分类" clearable check-strictly />
-        </el-col>
-        <el-col :span="4">
+        </div>
+        <div class="w-[100px]">
           <el-select v-model="queryParams.status" placeholder="状态" clearable>
             <el-option label="上架" :value="1" />
             <el-option label="下架" :value="0" />
           </el-select>
-        </el-col>
-        <el-col :span="6">
-          <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
-          <el-button type="success" icon="Plus" @click="handleAdd">新增</el-button>
-        </el-col>
-      </el-row>
-    </div>
-    
-    <div class="table-container">
-      <el-table v-loading="loading" :data="books" stripe>
-        <el-table-column prop="title" label="书名" min-width="200" />
-        <el-table-column prop="author" label="作者" width="150" />
-        <el-table-column prop="isbn" label="ISBN" width="150" />
-        <el-table-column prop="category_name" label="分类" width="100" />
-        <el-table-column label="库存" width="100">
-          <template #default="{ row }">
-            {{ row.available_copies }} / {{ row.total_copies }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="80">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status, 'book')">{{ BOOK_STATUS[row.status] }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-            <el-button v-if="row.status === 0" type="success" link @click="handlePublish(row)">上架</el-button>
-            <el-button v-else type="warning" link @click="handleUnpublish(row)">下架</el-button>
-            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+        </div>
+        <button class="h-[40px] px-4 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" @click="handleSearch">搜索</button>
+        <button class="h-[40px] px-4 bg-near-black text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-85 transition-opacity tracking-[-0.224px]" @click="handleAdd">新增</button>
       </div>
     </div>
     
+    <!-- Table -->
+    <div class="bg-apple-white rounded-large shadow-card overflow-hidden">
+      <div class="p-5">
+        <el-table v-loading="loading" :data="books" class="apple-table">
+          <el-table-column prop="title" label="书名" min-width="200">
+            <template #default="{ row }">
+              <span class="font-semibold text-near-black tracking-[-0.224px]">{{ row.title }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="author" label="作者" width="150" />
+          <el-table-column prop="isbn" label="ISBN" width="150" />
+          <el-table-column prop="category_name" label="分类" width="100" />
+          <el-table-column label="库存" width="100">
+            <template #default="{ row }">
+              {{ row.available_copies }} / {{ row.total_copies }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="80">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status, 'book')" size="small" class="!border-none !rounded-pill !text-[12px]">{{ BOOK_STATUS[row.status] }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="200" fixed="right">
+            <template #default="{ row }">
+              <div class="flex gap-2">
+                <button class="text-[14px] text-link-blue hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleEdit(row)">编辑</button>
+                <button v-if="row.status === 0" class="text-[14px] text-success-green hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handlePublish(row)">上架</button>
+                <button v-else class="text-[14px] text-[#E6A23C] hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleUnpublish(row)">下架</button>
+                <button class="text-[14px] text-danger-red hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleDelete(row)">删除</button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dialog -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px">
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
-        <el-row :gutter="20">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" class="apple-form">
+        <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="书名" prop="title">
               <el-input v-model="form.title" />
@@ -238,7 +247,7 @@ onMounted(() => {
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row :gutter="20">
+        <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="ISBN">
               <el-input v-model="form.isbn" />
@@ -250,7 +259,7 @@ onMounted(() => {
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row :gutter="20">
+        <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="出版社">
               <el-input v-model="form.publisher" />
@@ -262,7 +271,7 @@ onMounted(() => {
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row :gutter="20">
+        <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="定价">
               <el-input-number v-model="form.price" :precision="2" :min="0" style="width: 100%" />
@@ -282,15 +291,43 @@ onMounted(() => {
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <button class="px-4 py-2 text-[14px] text-text-secondary rounded-standard border border-[rgba(0,0,0,0.1)] bg-transparent cursor-pointer hover:bg-apple-gray transition-colors tracking-[-0.224px] mr-2" @click="dialogVisible = false">取消</button>
+        <button class="px-4 py-2 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" @click="handleSubmit">确定</button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <style scoped>
-.search-bar { background: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-.table-container { background: #fff; padding: 20px; border-radius: 4px; }
-.pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Apple Table Overrides */
+:deep(.apple-table) {
+  --el-table-border-color: rgba(0, 0, 0, 0.06);
+  --el-table-header-bg-color: #f5f5f7;
+}
+
+:deep(.apple-table th.el-table__cell) {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: rgba(0, 0, 0, 0.48) !important;
+  letter-spacing: -0.12px !important;
+}
+
+:deep(.apple-table td.el-table__cell) {
+  font-size: 14px !important;
+  letter-spacing: -0.224px !important;
+}
+
+/* Apple Form */
+.apple-form :deep(.el-form-item__label) {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #1d1d1f !important;
+  letter-spacing: -0.224px !important;
+}
 </style>

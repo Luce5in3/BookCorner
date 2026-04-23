@@ -104,33 +104,34 @@ onUnmounted(() => {
 
 <template>
   <div class="home-container">
-    <!-- 公告区域 -->
+    <!-- 公告区域 - Apple Style -->
     <div v-if="announcements.length > 0" class="announcement-section">
-      <el-carousel height="60px" direction="vertical" :autoplay="true" indicator-position="none">
+      <el-carousel height="48px" direction="vertical" :autoplay="true" indicator-position="none">
         <el-carousel-item v-for="item in announcements" :key="item.id">
           <div class="announcement-item" @click="showAnnouncement(item)">
-            <el-icon color="#E6A23C"><Bell /></el-icon>
-            <span class="title">{{ item.title }}</span>
-            <span class="view-detail">查看详情 &gt;</span>
+            <el-icon color="#0071e3" size="14"><Bell /></el-icon>
+            <span class="announcement-title">{{ item.title }}</span>
+            <span class="announcement-link">查看详情 &gt;</span>
           </div>
         </el-carousel-item>
       </el-carousel>
     </div>
     
-    <!-- 搜索区域 -->
+    <!-- 搜索区域 - Apple Filter Button Style -->
     <div class="search-section">
-      <el-row :gutter="20" align="middle">
-        <el-col :span="8">
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="flex-1 min-w-[200px]">
           <el-input
             v-model="searchParams.search"
             placeholder="搜索书名、作者..."
             prefix-icon="Search"
             clearable
+            class="apple-input"
             @keyup.enter="handleSearch"
             @clear="handleSearch"
           />
-        </el-col>
-        <el-col :span="6">
+        </div>
+        <div class="w-[180px]">
           <el-tree-select
             v-model="searchParams.category"
             :data="categories"
@@ -140,46 +141,50 @@ onUnmounted(() => {
             check-strictly
             @change="handleSearch"
           />
-        </el-col>
-        <el-col :span="4">
-          <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
-        </el-col>
-      </el-row>
+        </div>
+        <button 
+          class="h-[40px] px-4 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]"
+          @click="handleSearch"
+        >
+          搜索
+        </button>
+      </div>
     </div>
     
-    <!-- 图书列表 -->
+    <!-- 图书列表 - Apple Product Grid -->
     <div v-loading="loading" class="book-section">
-      <el-row :gutter="20">
-        <el-col v-for="book in books" :key="book.id" :xs="12" :sm="8" :md="6" :lg="4" :xl="4">
-          <el-card class="book-card" shadow="hover" @click="goToDetail(book.id)">
-            <div class="book-cover">
-              <el-image
-                :src="getCoverUrl(book)"
-                fit="cover"
-                class="cover-img"
-              >
-                <template #error>
-                  <div class="cover-placeholder">
-                    <el-icon size="40"><Reading /></el-icon>
-                  </div>
-                </template>
-              </el-image>
-            </div>
-            <div class="book-info">
-              <h4 class="book-title" :title="book.title">{{ book.title }}</h4>
-              <p class="book-author">{{ book.author }}</p>
-              <div class="book-meta">
-                <el-tag 
-                  :type="book.available_copies > 0 ? 'success' : 'danger'" 
-                  size="small"
-                >
-                  {{ book.available_copies > 0 ? `可借 ${book.available_copies}` : '暂无可借' }}
-                </el-tag>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+        <div 
+          v-for="book in books" 
+          :key="book.id" 
+          class="book-card cursor-pointer group"
+          @click="goToDetail(book.id)"
+        >
+          <div class="book-cover">
+            <el-image
+              :src="getCoverUrl(book)"
+              fit="cover"
+              class="cover-img"
+            >
+              <template #error>
+                <div class="cover-placeholder">
+                  <el-icon size="32" class="text-text-tertiary"><Reading /></el-icon>
+                </div>
+              </template>
+            </el-image>
+          </div>
+          <div class="book-info">
+            <h4 class="book-title" :title="book.title">{{ book.title }}</h4>
+            <p class="book-author">{{ book.author }}</p>
+            <span 
+              class="book-status"
+              :class="book.available_copies > 0 ? 'status-available' : 'status-unavailable'"
+            >
+              {{ book.available_copies > 0 ? `可借 ${book.available_copies}` : '暂无可借' }}
+            </span>
+          </div>
+        </div>
+      </div>
       
       <el-empty v-if="!loading && books.length === 0" description="暂无图书" />
       
@@ -196,14 +201,19 @@ onUnmounted(() => {
     </div>
     
     <!-- 公告详情弹窗 -->
-    <el-dialog v-model="announcementVisible" title="公告详情" width="500px">
+    <el-dialog v-model="announcementVisible" title="公告详情" width="500px" class="apple-dialog">
       <div class="announcement-detail">
         <h3>{{ currentAnnouncement.title }}</h3>
-        <el-divider />
+        <div class="h-px bg-[rgba(0,0,0,0.1)] my-4"></div>
         <p>{{ currentAnnouncement.content }}</p>
       </div>
       <template #footer>
-        <el-button type="primary" @click="announcementVisible = false">关闭</el-button>
+        <button 
+          class="px-4 py-2 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity"
+          @click="announcementVisible = false"
+        >
+          关闭
+        </button>
       </template>
     </el-dialog>
   </div>
@@ -211,41 +221,43 @@ onUnmounted(() => {
 
 <style scoped>
 .home-container {
-  padding: 20px;
 }
 
 .announcement-section {
-  background: #fffbe6;
-  border: 1px solid #ffe58f;
-  border-radius: 4px;
-  padding: 0 20px;
-  margin-bottom: 20px;
+  background: rgba(0, 113, 227, 0.06);
+  border: none;
+  border-radius: 11px;
+  padding: 0 16px;
+  margin-bottom: 24px;
 }
 
 .announcement-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 60px;
+  gap: 8px;
+  height: 48px;
   cursor: pointer;
 }
 
-.announcement-item .title {
+.announcement-title {
   flex: 1;
-  color: #666;
+  color: rgba(0, 0, 0, 0.8);
   font-size: 14px;
+  letter-spacing: -0.224px;
 }
 
-.announcement-item .view-detail {
-  color: #409EFF;
+.announcement-link {
+  color: #0066cc;
   font-size: 12px;
+  letter-spacing: -0.12px;
 }
 
 .search-section {
-  background: #fff;
-  padding: 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  background: #fafafc;
+  padding: 16px;
+  border-radius: 11px;
+  border: 3px solid rgba(0, 0, 0, 0.04);
+  margin-bottom: 24px;
 }
 
 .book-section {
@@ -253,20 +265,19 @@ onUnmounted(() => {
 }
 
 .book-card {
-  margin-bottom: 20px;
-  cursor: pointer;
-  transition: transform 0.3s;
+  transition: transform 200ms ease;
 }
 
 .book-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
 }
 
 .book-cover {
-  height: 180px;
+  aspect-ratio: 3/4;
   overflow: hidden;
-  margin: -20px -20px 10px;
-  background: #f5f7fa;
+  background: #f5f5f7;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .cover-img {
@@ -280,55 +291,94 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f7fa;
-  color: #ccc;
+  background: #f5f5f7;
 }
 
 .book-info {
-  padding: 0 5px;
+  padding: 0 2px;
 }
 
 .book-title {
   font-size: 14px;
   font-weight: 600;
-  color: #333;
-  margin: 0 0 5px;
+  color: #1d1d1f;
+  margin: 0 0 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: -0.224px;
+  line-height: 1.29;
 }
 
 .book-author {
   font-size: 12px;
-  color: #999;
-  margin: 0 0 10px;
+  color: rgba(0, 0, 0, 0.48);
+  margin: 0 0 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: -0.12px;
+  line-height: 1.33;
 }
 
-.book-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.book-status {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 980px;
+  letter-spacing: -0.08px;
+  line-height: 1.47;
+}
+
+.status-available {
+  background: rgba(0, 125, 72, 0.1);
+  color: #007D48;
+}
+
+.status-unavailable {
+  background: rgba(255, 59, 48, 0.1);
+  color: #FF3B30;
 }
 
 .pagination-container {
-  margin-top: 20px;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
 }
 
 .announcement-detail h3 {
-  margin: 0 0 10px;
-  font-size: 16px;
-  color: #303133;
+  margin: 0 0 4px;
+  font-size: 21px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: 0.231px;
+  line-height: 1.19;
 }
 
 .announcement-detail p {
   margin: 0;
-  line-height: 1.8;
-  color: #606266;
+  line-height: 1.47;
+  color: rgba(0, 0, 0, 0.8);
+  letter-spacing: -0.374px;
   white-space: pre-wrap;
+}
+
+/* Apple Input */
+:deep(.apple-input .el-input__wrapper) {
+  background-color: #fafafc !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+  border: 3px solid rgba(0, 0, 0, 0.04) !important;
+  height: 40px !important;
+}
+
+:deep(.apple-input .el-input__inner) {
+  color: #1d1d1f !important;
+  font-size: 14px !important;
+  letter-spacing: -0.224px !important;
+}
+
+:deep(.apple-input .el-input__inner::placeholder) {
+  color: rgba(0, 0, 0, 0.48) !important;
 }
 </style>

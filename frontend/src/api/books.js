@@ -77,6 +77,15 @@ export function deleteBook(id) {
 }
 
 /**
+ * AI 生成图书简介
+ * @param {number} id 图书ID
+ * @param {string} keywords 关注关键词
+ */
+export function generateDescription(id, keywords = '') {
+  return request.post(`/api/books/${id}/generate-description/`, { keywords })
+}
+
+/**
  * 上架图书
  */
 export function publishBook(id) {

@@ -2,38 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Nike Design System - Global Styles */
+/* Apple Design System - Global Styles */
 
 /* Root Variables */
 :root {
   /* Primary Colors */
-  --nike-black: #111111;
-  --nike-white: #FFFFFF;
-  
+  --apple-black: #000000;
+  --apple-white: #FFFFFF;
+
   /* Surface Colors */
-  --snow: #FAFAFA;
-  --light-gray: #F5F5F5;
-  --hover-gray: #E5E5E5;
-  --dark-surface: #28282A;
-  --deep-charcoal: #1F1F21;
-  --dark-hover: #39393B;
-  
+  --apple-gray: #f5f5f7;
+  --near-black: #1d1d1f;
+
+  /* Dark Surfaces */
+  --dark-surface-1: #272729;
+  --dark-surface-2: #262628;
+  --dark-surface-3: #28282a;
+  --dark-surface-4: #2a2a2d;
+  --dark-surface-5: #242426;
+
+  /* Interactive Colors */
+  --apple-blue: #0071e3;
+  --link-blue: #0066cc;
+  --bright-blue: #2997ff;
+
   /* Text Colors */
-  --text-primary: #111111;
-  --text-secondary: #707072;
-  --text-disabled: #9E9EA0;
-  
-  /* Border Colors */
-  --border-primary: #707072;
-  --border-secondary: #CACACB;
-  --border-active: #111111;
-  
-  /* Semantic Colors */
-  --nike-red: #D30005;
-  --success-green: #007D48;
-  --link-blue: #1151FF;
-  --warning-yellow: #FEDF35;
-  --focus-ring: rgba(39, 93, 197, 1);
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-tertiary: rgba(0, 0, 0, 0.48);
+
+  /* Button States */
+  --btn-active: #ededf2;
+  --btn-default-light: #fafafc;
+  --overlay: rgba(210, 210, 215, 0.64);
+
+  /* Focus */
+  --sk-focus-color: #0071e3;
 }
 
 /* Base Reset */
@@ -45,9 +49,9 @@
 
 /* Base Typography */
 html {
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  font-family: -apple-system, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   font-size: 16px;
-  line-height: 1.75;
+  line-height: 1.47;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -56,107 +60,120 @@ html, body, #app {
   width: 100%;
   height: 100%;
   color: var(--text-primary);
-  background: var(--nike-white);
+  background: var(--apple-white);
 }
 
 /* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 500;
+  font-family: -apple-system, 'SF Pro Display', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+  font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.10;
 }
 
 h1 {
-  font-size: 32px;
+  font-size: 56px;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
 }
 
 h2 {
-  font-size: 24px;
+  font-size: 40px;
+  line-height: 1.10;
 }
 
 h3 {
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 28px;
+  line-height: 1.14;
+  font-weight: 400;
+  letter-spacing: 0.196px;
 }
 
 p {
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--text-primary);
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--text-secondary);
 }
 
-/* Nike Button Styles */
+/* Apple Blue CTA Button */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  background-color: var(--nike-black);
-  color: var(--nike-white);
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.5;
-  border-radius: 30px;
-  border: none;
+  padding: 8px 15px;
+  background-color: var(--apple-blue);
+  color: var(--apple-white);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1;
+  border-radius: 8px;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all 200ms ease;
 }
 
 .btn-primary:hover {
-  background-color: var(--text-secondary);
+  opacity: 0.9;
 }
 
 .btn-primary:active {
-  transform: scale(0.95);
+  background-color: var(--btn-active);
+  color: var(--near-black);
 }
 
 .btn-primary:focus {
-  box-shadow: 0 0 0 2px var(--focus-ring);
-  outline: none;
+  outline: 2px solid var(--sk-focus-color);
+  outline-offset: 2px;
 }
 
-/* Primary on Dark - White Pill */
+/* Primary Dark Button */
 .btn-primary-dark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  background-color: var(--nike-white);
-  color: var(--nike-black);
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.5;
-  border-radius: 30px;
+  padding: 8px 15px;
+  background-color: var(--near-black);
+  color: var(--apple-white);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
   transition: all 200ms ease;
 }
 
 .btn-primary-dark:hover {
-  background-color: var(--border-secondary);
+  opacity: 0.85;
 }
 
-/* Secondary Button - Outlined */
-.btn-secondary {
+/* Pill Link - Learn More / Shop */
+.btn-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
+  padding: 8px 16px;
   background-color: transparent;
-  color: var(--nike-black);
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.5;
-  border-radius: 30px;
-  border: 1.5px solid var(--border-secondary);
+  color: var(--link-blue);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  border-radius: 980px;
+  border: 1px solid var(--link-blue);
   cursor: pointer;
   transition: all 200ms ease;
+  text-decoration: none;
 }
 
-.btn-secondary:hover {
-  border-color: var(--border-primary);
-  background-color: var(--hover-gray);
+.btn-pill:hover {
+  text-decoration: underline;
+}
+
+.btn-pill-dark {
+  color: var(--bright-blue);
+  border-color: var(--bright-blue);
 }
 
 /* Disabled Button */
@@ -164,13 +181,13 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  background-color: var(--hover-gray);
-  color: var(--text-disabled);
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.5;
-  border-radius: 30px;
+  padding: 8px 15px;
+  background-color: var(--apple-gray);
+  color: var(--text-tertiary);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1;
+  border-radius: 8px;
   border: none;
   cursor: not-allowed;
 }
@@ -182,168 +199,149 @@ p {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: var(--light-gray);
+  background-color: var(--overlay);
   border-radius: 50%;
   cursor: pointer;
   transition: all 200ms ease;
 }
 
 .btn-icon:hover {
-  background-color: var(--text-secondary);
+  background-color: rgba(210, 210, 215, 0.8);
 }
 
-/* Input Styles */
+.btn-icon:active {
+  transform: scale(0.9);
+}
+
+/* Input Styles - Apple Filter/Search Button Style */
 .input-field {
   width: 100%;
-  padding: 12px 16px;
-  background-color: var(--light-gray);
-  border: 1px solid var(--border-secondary);
-  border-radius: 8px;
+  padding: 0 14px;
+  background-color: var(--btn-default-light);
+  border: 3px solid rgba(0, 0, 0, 0.04);
+  border-radius: 11px;
   font-family: inherit;
-  font-size: 16px;
-  line-height: 1.75;
+  font-size: 17px;
+  line-height: 2.41;
   color: var(--text-primary);
   transition: all 200ms ease;
 }
 
 .input-field::placeholder {
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
 .input-field:focus {
-  border-color: var(--border-active);
-  outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring);
+  border-color: var(--apple-blue);
+  outline: 2px solid var(--sk-focus-color);
 }
 
 .input-field.error {
-  border-color: var(--nike-red);
+  border-color: #FF3B30;
 }
 
-/* Search Input */
-.input-search {
-  width: 100%;
-  padding: 12px 20px;
-  background-color: var(--light-gray);
-  border: none;
-  border-radius: 24px;
-  font-family: inherit;
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--text-primary);
-  transition: all 200ms ease;
-}
-
-.input-search::placeholder {
-  color: var(--text-secondary);
-}
-
-.input-search:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring);
-}
-
-/* Card Styles */
+/* Card Styles - Apple minimal */
 .card {
-  background-color: var(--nike-white);
-  border-radius: 20px;
+  background-color: var(--apple-gray);
+  border-radius: 8px;
   overflow: hidden;
+  border: none;
+  box-shadow: none;
 }
 
-.card-flat {
-  background-color: var(--nike-white);
-}
-
-.card-product {
-  background-color: var(--nike-white);
+.card-elevated {
+  background-color: var(--apple-white);
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
+  border: none;
 }
 
-.card-product img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
+.card-dark {
+  background-color: var(--dark-surface-1);
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
 }
 
 /* Navigation Styles */
 .nav-link {
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--text-primary);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: -0.12px;
+  color: var(--apple-white);
   text-decoration: none;
-  transition: color 200ms ease;
+  transition: opacity 200ms ease;
 }
 
 .nav-link:hover {
-  color: var(--text-secondary);
+  opacity: 0.8;
 }
 
 .nav-link-active {
-  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
-/* Text Styles */
-.text-display {
-  font-size: 96px;
-  font-weight: 500;
-  text-transform: uppercase;
-  line-height: 0.90;
+/* Text Styles - Apple Typography */
+.text-hero {
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
 }
 
-.text-display-sm {
-  font-size: 64px;
-  font-weight: 500;
-  line-height: 0.95;
+.text-section {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.10;
 }
 
-.text-display-xs {
-  font-size: 48px;
-  font-weight: 500;
-  line-height: 1.0;
+.text-tile {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
 }
 
 .text-caption {
   font-size: 14px;
-  font-weight: 500;
-  line-height: 1.5;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
   color: var(--text-secondary);
 }
 
-.text-small {
+.text-micro {
   font-size: 12px;
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--text-secondary);
+  font-weight: 400;
+  line-height: 1.33;
+  letter-spacing: -0.12px;
+  color: var(--text-tertiary);
 }
 
-/* Scrollbar - Nike Style Minimal */
+/* Scrollbar - Apple Minimal */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--light-gray);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-secondary);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-primary);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Utility Classes */
-
-/* Full-bleed Image */
-.img-fullbleed {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 /* Section Padding */
 .section-padding {
@@ -365,50 +363,53 @@ p {
   }
 }
 
-/* Container */
-.container-nike {
+/* Container - Apple 980px max */
+.container-apple {
   width: 100%;
-  max-width: 1920px;
+  max-width: 980px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.content-nike {
+.container-wide {
   width: 100%;
   max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Divider */
-.divider {
-  box-shadow: 0px -1px 0px 0px var(--hover-gray) inset;
-}
-
 /* Focus Ring */
 .focus-ring:focus {
-  box-shadow: 0 0 0 2px var(--focus-ring);
-  outline: none;
+  outline: 2px solid var(--sk-focus-color);
+  outline-offset: 2px;
 }
 
-/* Element Plus Overrides - Nike Style */
+/* Element Plus Overrides - Apple Style */
 .el-button--primary {
-  background-color: var(--nike-black) !important;
-  border-color: var(--nike-black) !important;
-  border-radius: 30px !important;
-  font-weight: 500 !important;
+  background-color: var(--apple-blue) !important;
+  border-color: var(--apple-blue) !important;
+  border-radius: 8px !important;
+  font-weight: 400 !important;
   transition: all 200ms ease !important;
 }
 
 .el-button--primary:hover {
-  background-color: var(--text-secondary) !important;
-  border-color: var(--text-secondary) !important;
+  opacity: 0.85 !important;
+  background-color: var(--apple-blue) !important;
+  border-color: var(--apple-blue) !important;
+}
+
+.el-button--primary:active {
+  background-color: var(--btn-active) !important;
+  border-color: var(--btn-active) !important;
+  color: var(--near-black) !important;
 }
 
 .el-input__wrapper {
-  background-color: var(--light-gray) !important;
-  border-radius: 8px !important;
+  background-color: var(--btn-default-light) !important;
+  border-radius: 11px !important;
   box-shadow: none !important;
+  border: 3px solid rgba(0, 0, 0, 0.04) !important;
 }
 
 .el-input__inner {
@@ -416,18 +417,18 @@ p {
 }
 
 .el-input__inner::placeholder {
-  color: var(--text-secondary) !important;
+  color: var(--text-tertiary) !important;
 }
 
 /* Page Container */
 .page-container {
   min-height: 100%;
-  background-color: var(--light-gray);
+  background-color: var(--apple-gray);
 }
 
 .page-content {
   width: 100%;
-  max-width: 1440px;
+  max-width: 980px;
   margin-left: auto;
   margin-right: auto;
   padding: 20px;

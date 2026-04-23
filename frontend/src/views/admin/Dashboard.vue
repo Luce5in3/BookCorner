@@ -22,12 +22,12 @@ const recentAnnouncements = ref([])
 const announcementVisible = ref(false)
 const currentAnnouncement = ref({ title: '', content: '' })
 
-// 统计卡片配置
+// 统计卡片配置 - Apple Dark Surface
 const statCards = [
-  { key: 'total_books', label: '图书总数', icon: Reading, color: 'blue' },
-  { key: 'total_users', label: '读者总数', icon: User, color: 'green' },
-  { key: 'active_borrows', label: '借阅中', icon: Tickets, color: 'orange' },
-  { key: 'pending_reservations', label: '预约中', icon: Clock, color: 'purple' },
+  { key: 'total_books', label: '图书总数', icon: Reading },
+  { key: 'total_users', label: '读者总数', icon: User },
+  { key: 'active_borrows', label: '借阅中', icon: Tickets },
+  { key: 'pending_reservations', label: '预约中', icon: Clock },
 ]
 
 async function fetchStats() {
@@ -68,69 +68,73 @@ onMounted(async () => {
 
 <template>
   <div class="dashboard-container" v-loading="loading">
-    <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stat-row">
-      <el-col :xs="12" :sm="6" v-for="card in statCards" :key="card.key">
-        <el-card shadow="hover" class="stat-card" :class="card.color">
-          <div class="stat-content">
-            <div class="stat-icon">
-              <el-icon :size="32"><component :is="card.icon" /></el-icon>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats[card.key] }}</div>
-              <div class="stat-label">{{ card.label }}</div>
+    <!-- Hero Stats - Apple Light Section -->
+    <div class="bg-apple-white rounded-large p-8 shadow-card mb-6">
+      <h2 class="text-[40px] font-semibold text-near-black leading-[1.10] mb-6">数据总览</h2>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="card in statCards" :key="card.key" class="bg-apple-gray rounded-standard p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-standard bg-apple-blue/10 flex items-center justify-center">
+              <el-icon :size="20" color="#0071e3"><component :is="card.icon" /></el-icon>
             </div>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+          <div class="text-[28px] font-semibold text-near-black leading-[1.14] tracking-[0.196px]">{{ stats[card.key] }}</div>
+          <div class="text-[14px] text-text-secondary mt-1 tracking-[-0.224px]">{{ card.label }}</div>
+        </div>
+      </div>
+    </div>
 
-    <!-- 数据列表区域 -->
-    <el-row :gutter="20" class="data-row">
-      <el-col :xs="24" :lg="16">
-        <el-card shadow="hover">
-          <template #header>
-            <span>最近借阅记录</span>
-          </template>
-          <el-table :data="recentBorrows" stripe size="small" max-height="400">
+    <!-- 数据列表区域 - Apple Light Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div class="lg:col-span-3 bg-apple-white rounded-large shadow-card overflow-hidden">
+        <div class="px-6 py-4 border-b border-[rgba(0,0,0,0.06)]">
+          <h3 class="text-[21px] font-semibold text-near-black leading-[1.19] tracking-[0.231px]">最近借阅记录</h3>
+        </div>
+        <div class="p-6">
+          <el-table :data="recentBorrows" size="small" max-height="400" class="apple-table">
             <el-table-column prop="user_name" label="读者" width="120" />
             <el-table-column prop="book_title" label="图书" min-width="200" show-overflow-tooltip />
             <el-table-column prop="borrow_date" label="借阅日期" width="120" />
             <el-table-column prop="status_display" label="状态" width="100">
               <template #default="{ row }">
-                <el-tag :type="getStatusType(row.status)" size="small">{{ row.status_display }}</el-tag>
+                <el-tag :type="getStatusType(row.status)" size="small" class="!border-none !rounded-pill !text-[12px]">{{ row.status_display }}</el-tag>
               </template>
             </el-table-column>
           </el-table>
           <el-empty v-if="recentBorrows.length === 0" description="暂无借阅记录" />
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :lg="8">
-        <el-card shadow="hover">
-          <template #header>
-            <span>最新公告</span>
-          </template>
+        </div>
+      </div>
+      <div class="lg:col-span-2 bg-apple-white rounded-large shadow-card overflow-hidden">
+        <div class="px-6 py-4 border-b border-[rgba(0,0,0,0.06)]">
+          <h3 class="text-[21px] font-semibold text-near-black leading-[1.19] tracking-[0.231px]">最新公告</h3>
+        </div>
+        <div class="p-4">
           <div class="announcement-list">
             <div v-for="item in recentAnnouncements" :key="item.id" class="announcement-item" @click="showAnnouncement(item)">
-              <el-icon class="announcement-icon"><Bell /></el-icon>
+              <el-icon class="announcement-icon" color="#0071e3" size="14"><Bell /></el-icon>
               <span class="announcement-title">{{ item.title }}</span>
               <span class="announcement-date">{{ item.created_at }}</span>
             </div>
             <el-empty v-if="recentAnnouncements.length === 0" description="暂无公告" />
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </div>
+      </div>
+    </div>
     
     <!-- 公告详情弹窗 -->
     <el-dialog v-model="announcementVisible" title="公告详情" width="500px">
       <div class="announcement-detail">
         <h3>{{ currentAnnouncement.title }}</h3>
-        <el-divider />
+        <div class="h-px bg-[rgba(0,0,0,0.1)] my-4"></div>
         <p>{{ currentAnnouncement.content }}</p>
       </div>
       <template #footer>
-        <el-button type="primary" @click="announcementVisible = false">关闭</el-button>
+        <button 
+          class="px-4 py-2 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity"
+          @click="announcementVisible = false"
+        >
+          关闭
+        </button>
       </template>
     </el-dialog>
   </div>
@@ -138,64 +142,7 @@ onMounted(async () => {
 
 <style scoped>
 .dashboard-container {
-  padding: 20px;
-  background: #f5f7fa;
   min-height: calc(100vh - 120px);
-}
-
-.stat-row {
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-bottom: 20px;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-}
-
-.stat-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-}
-
-.stat-card.blue .stat-icon { background: linear-gradient(135deg, #409EFF, #66b1ff); }
-.stat-card.green .stat-icon { background: linear-gradient(135deg, #67C23A, #85ce61); }
-.stat-card.orange .stat-icon { background: linear-gradient(135deg, #E6A23C, #ebb563); }
-.stat-card.purple .stat-icon { background: linear-gradient(135deg, #9c27b0, #ba68c8); }
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #909399;
-  margin-top: 4px;
-}
-
-.data-row .el-col {
-  margin-bottom: 20px;
 }
 
 .announcement-list {
@@ -206,15 +153,16 @@ onMounted(async () => {
 .announcement-item {
   display: flex;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #ebeef5;
-  gap: 10px;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 200ms ease;
+  border-radius: 5px;
 }
 
 .announcement-item:hover {
-  background: #f5f7fa;
+  background: #f5f5f7;
 }
 
 .announcement-item:last-child {
@@ -222,35 +170,58 @@ onMounted(async () => {
 }
 
 .announcement-icon {
-  color: #E6A23C;
   flex-shrink: 0;
 }
 
 .announcement-title {
   flex: 1;
   font-size: 14px;
-  color: #303133;
+  color: #1d1d1f;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: -0.224px;
 }
 
 .announcement-date {
   font-size: 12px;
-  color: #909399;
+  color: rgba(0, 0, 0, 0.48);
   flex-shrink: 0;
+  letter-spacing: -0.12px;
 }
 
 .announcement-detail h3 {
-  margin: 0 0 10px;
-  font-size: 16px;
-  color: #303133;
+  margin: 0 0 4px;
+  font-size: 21px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: 0.231px;
+  line-height: 1.19;
 }
 
 .announcement-detail p {
   margin: 0;
-  line-height: 1.8;
-  color: #606266;
+  line-height: 1.47;
+  color: rgba(0, 0, 0, 0.8);
+  letter-spacing: -0.374px;
   white-space: pre-wrap;
+}
+
+/* Apple Table Overrides */
+:deep(.apple-table) {
+  --el-table-border-color: rgba(0, 0, 0, 0.06);
+  --el-table-header-bg-color: #f5f5f7;
+}
+
+:deep(.apple-table th.el-table__cell) {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: rgba(0, 0, 0, 0.48) !important;
+  letter-spacing: -0.12px !important;
+}
+
+:deep(.apple-table td.el-table__cell) {
+  font-size: 14px !important;
+  letter-spacing: -0.224px !important;
 }
 </style>

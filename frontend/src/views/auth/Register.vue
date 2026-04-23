@@ -66,154 +66,164 @@ async function handleRegister() {
 </script>
 
 <template>
-  <div class="register-container">
-    <div class="register-card">
-      <div class="register-header">
-        <el-icon size="40" color="#409EFF"><Reading /></el-icon>
-        <h1>注册账号</h1>
-        <p>加入图书角，开启阅读之旅</p>
-      </div>
-      
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        label-position="top"
-        class="register-form"
-      >
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="用户名" prop="username">
-              <el-input
-                v-model="form.username"
-                placeholder="请输入用户名"
-                prefix-icon="User"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="真实姓名" prop="real_name">
-              <el-input
-                v-model="form.real_name"
-                placeholder="请输入真实姓名"
-                prefix-icon="Postcard"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
+  <div class="min-h-screen flex items-center justify-center bg-apple-gray">
+    <div class="w-full max-w-[500px] px-6">
+      <div class="bg-apple-white rounded-large p-10 shadow-card">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-14 h-14 bg-apple-black rounded-full mb-5">
+            <el-icon size="28" color="#FFFFFF"><Reading /></el-icon>
+          </div>
+          <h1 class="text-[28px] font-semibold text-near-black leading-[1.14] tracking-[0.196px] mb-1">注册账号</h1>
+          <p class="text-[14px] text-text-secondary tracking-[-0.224px]">加入图书角，开启阅读之旅</p>
+        </div>
         
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="密码" prop="password">
-              <el-input
-                v-model="form.password"
-                type="password"
-                placeholder="请输入密码"
-                prefix-icon="Lock"
-                show-password
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="确认密码" prop="confirmPassword">
-              <el-input
-                v-model="form.confirmPassword"
-                type="password"
-                placeholder="请再次输入密码"
-                prefix-icon="Lock"
-                show-password
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <el-form
+          ref="formRef"
+          :model="form"
+          :rules="rules"
+          label-position="top"
+          class="register-form apple-form"
+        >
+          <el-row :gutter="16">
+            <el-col :span="12">
+              <el-form-item label="用户名" prop="username">
+                <el-input
+                  v-model="form.username"
+                  placeholder="请输入用户名"
+                  prefix-icon="User"
+                  class="apple-input"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="真实姓名" prop="real_name">
+                <el-input
+                  v-model="form.real_name"
+                  placeholder="请输入真实姓名"
+                  prefix-icon="Postcard"
+                  class="apple-input"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
+          <el-row :gutter="16">
+            <el-col :span="12">
+              <el-form-item label="密码" prop="password">
+                <el-input
+                  v-model="form.password"
+                  type="password"
+                  placeholder="请输入密码"
+                  prefix-icon="Lock"
+                  show-password
+                  class="apple-input"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="确认密码" prop="confirmPassword">
+                <el-input
+                  v-model="form.confirmPassword"
+                  type="password"
+                  placeholder="请再次输入密码"
+                  prefix-icon="Lock"
+                  show-password
+                  class="apple-input"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
+          <el-row :gutter="16">
+            <el-col :span="12">
+              <el-form-item label="邮箱" prop="email">
+                <el-input
+                  v-model="form.email"
+                  placeholder="请输入邮箱（选填）"
+                  prefix-icon="Message"
+                  class="apple-input"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="手机号" prop="phone">
+                <el-input
+                  v-model="form.phone"
+                  placeholder="请输入手机号（选填）"
+                  prefix-icon="Phone"
+                  class="apple-input"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
+          <el-form-item class="!mt-2">
+            <button
+              type="button"
+              :disabled="loading"
+              class="w-full h-11 bg-apple-blue text-white font-normal text-[17px] rounded-standard border-none cursor-pointer transition-all duration-200 hover:opacity-90 active:bg-btn-active active:text-near-black disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="handleRegister"
+            >
+              <span v-if="loading" class="flex items-center justify-center gap-2">
+                <el-icon class="animate-spin"><Loading /></el-icon>
+                注册中...
+              </span>
+              <span v-else>注册</span>
+            </button>
+          </el-form-item>
+        </el-form>
         
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input
-                v-model="form.email"
-                placeholder="请输入邮箱（选填）"
-                prefix-icon="Message"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="手机号" prop="phone">
-              <el-input
-                v-model="form.phone"
-                placeholder="请输入手机号（选填）"
-                prefix-icon="Phone"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        
-        <el-form-item>
-          <el-button
-            type="primary"
-            size="large"
-            :loading="loading"
-            class="register-btn"
-            @click="handleRegister"
+        <div class="text-center mt-6">
+          <span class="text-[14px] text-text-tertiary tracking-[-0.224px]">已有账号？</span>
+          <button 
+            type="button"
+            class="ml-1 text-[14px] font-normal text-link-blue hover:underline underline-offset-2 transition-colors tracking-[-0.224px]"
+            @click="router.push('/login')"
           >
-            注册
-          </el-button>
-        </el-form-item>
-      </el-form>
-      
-      <div class="register-footer">
-        <span>已有账号？</span>
-        <el-link type="primary" @click="router.push('/login')">立即登录</el-link>
+            立即登录
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.register-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+.apple-form :deep(.el-form-item__label) {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #1d1d1f !important;
+  letter-spacing: -0.224px !important;
+  padding-bottom: 4px !important;
 }
 
-.register-card {
-  width: 500px;
-  padding: 40px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+.apple-form :deep(.el-form-item) {
+  margin-bottom: 16px !important;
 }
 
-.register-header {
-  text-align: center;
-  margin-bottom: 30px;
+.apple-form :deep(.apple-input .el-input__wrapper) {
+  background-color: #fafafc !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+  border: 3px solid rgba(0, 0, 0, 0.04) !important;
+  padding: 0 14px !important;
+  height: 44px !important;
 }
 
-.register-header h1 {
-  margin: 10px 0 5px;
-  font-size: 28px;
-  color: #333;
+.apple-form :deep(.apple-input .el-input__inner) {
+  color: #1d1d1f !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.374px !important;
 }
 
-.register-header p {
-  color: #999;
-  font-size: 14px;
+.apple-form :deep(.apple-input .el-input__inner::placeholder) {
+  color: rgba(0, 0, 0, 0.48) !important;
 }
 
-.register-form {
-  margin-bottom: 20px;
-}
-
-.register-btn {
-  width: 100%;
-}
-
-.register-footer {
-  text-align: center;
-  color: #666;
-  font-size: 14px;
+.apple-form :deep(.el-form-item__error) {
+  color: #FF3B30 !important;
+  font-size: 12px !important;
+  letter-spacing: -0.12px !important;
 }
 </style>
