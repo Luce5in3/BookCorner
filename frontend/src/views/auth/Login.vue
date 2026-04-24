@@ -40,7 +40,33 @@ async function handleLogin() {
       router.push('/reader/home')
     }
   } catch (error) {
-    console.error('登录失败:', error)
+    if (error === 'cancel' || error?.toString?.().includes('cancel')) return
+    
+    // 根据错误类型显示具体反馈
+    const response = error?.response
+    const status = response?.status
+    const serverMsg = response?.data?.message
+    
+    let message
+    if (!response) {
+      // 无响应 = 网络错误
+      message = '网络连接失败，请检查网络后重试'
+    } else if (status === 401) {
+      // 401 已在 request.js 拦截器中显示，此处不再重复
+      return
+    } else if (status === 403) {
+      message = serverMsg || '账号权限不足，禁止访问'
+    } else if (status === 404) {
+      message = '登录服务不可用，请联系管理员'
+    } else if (status >= 500) {
+      message = '服务器异常，请稍后重试'
+    } else {
+      message = serverMsg || '登录失败，请重试'
+    }
+    
+    if (message) {
+      ElMessage.error(message)
+    }
   } finally {
     loading.value = false
   }

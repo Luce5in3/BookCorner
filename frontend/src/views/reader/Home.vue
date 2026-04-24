@@ -17,7 +17,7 @@ const searchParams = ref({
   search: '',
   category: '',
   page: 1,
-  page_size: 12
+  page_size: 10
 })
 
 const total = ref(0)

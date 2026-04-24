@@ -115,7 +115,7 @@ async function handleLogout() {
     <!-- Footer -->
     <footer class="bg-apple-gray border-t border-[rgba(0,0,0,0.04)] py-4">
       <div class="max-w-[980px] mx-auto px-4 sm:px-6 text-center">
-        <p class="text-micro">图书角图书管理系统 &copy; 2024</p>
+        <p class="text-micro">图书角图书管理系统</p>
       </div>
     </footer>
   </div>

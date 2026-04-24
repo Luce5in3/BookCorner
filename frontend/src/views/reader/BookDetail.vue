@@ -114,8 +114,8 @@ onUnmounted(() => {
           
           <!-- 详情 -->
           <div class="flex-1 text-white">
-            <h1 class="text-[40px] font-semibold leading-[1.10] tracking-[-0.28px] mb-3">{{ book.title }}</h1>
-            <p class="text-[21px] font-normal leading-[1.19] tracking-[0.231px] text-white/80 mb-6">{{ book.author }}</p>
+            <h1 class="book-title text-[40px] font-semibold leading-[1.10] tracking-[-0.28px] mb-3">{{ book.title }}</h1>
+            <p class="text-[21px] font-normal leading-[1.19] tracking-[0.231px] text-white/90 mb-6">{{ book.author }}</p>
             
             <!-- 状态标签 -->
             <div class="flex gap-3 mb-6">
@@ -193,14 +193,14 @@ onUnmounted(() => {
           </button>
         </div>
         <!-- 关键词输入 -->
-        <div class="flex items-center gap-3 mb-5">
-          <span class="text-[13px] text-text-tertiary tracking-[-0.12px] whitespace-nowrap">关注重点</span>
-          <input
+        <div class="flex items-start gap-3 mb-5">
+          <span class="text-[15px] text-text-secondary tracking-[-0.12px] whitespace-nowrap font-medium pt-3">关注重点</span>
+          <textarea
             v-model="aiKeywords"
-            type="text"
+            rows="1"
             placeholder="如：写作手法、人物塑造、历史背景..."
-            class="flex-1 h-9 px-3 bg-[#fafafc] rounded-standard border-[3px] border-[rgba(0,0,0,0.04)] text-[14px] text-near-black tracking-[-0.224px] outline-none focus:border-apple-blue/40 transition-colors placeholder:text-[rgba(0,0,0,0.32)]"
-          />
+            class="w-[300px] py-3 px-4 bg-[#fafafc] rounded-standard border-[3px] border-[rgba(0,0,0,0.04)] text-[16px] text-near-black tracking-[-0.224px] outline-none focus:border-apple-blue/40 transition-colors placeholder:text-[15px] placeholder:text-[rgba(0,0,0,0.32)] resize-none leading-relaxed"
+          ></textarea>
         </div>
         <div v-if="aiLoading && !book.description" class="flex flex-col items-center justify-center py-12 gap-3">
           <el-icon size="32" class="animate-spin text-apple-blue"><Loading /></el-icon>
@@ -242,6 +242,11 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+.book-title {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
 .detail-field {
   display: flex;
   flex-direction: column;
@@ -250,14 +255,14 @@ onUnmounted(() => {
 
 .detail-label {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.48);
+  color: rgba(255, 255, 255, 0.56);
   letter-spacing: -0.12px;
   line-height: 1.33;
 }
 
 .detail-value {
   font-size: 14px;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.95);
   letter-spacing: -0.224px;
   line-height: 1.29;
 }
