@@ -107,7 +107,7 @@ async function handleLogout() {
     
     <!-- Main Content -->
     <main class="flex-1">
-      <div class="max-w-[980px] mx-auto px-4 sm:px-6 py-8">
+      <div class="max-w-[1300px] mx-auto px-4 sm:px-6 py-8">
         <router-view />
       </div>
     </main>
