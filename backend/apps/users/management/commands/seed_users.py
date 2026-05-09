@@ -1,4 +1,5 @@
 """
+
 种子用户数据命令
 用法: python manage.py seed_users
 密码统一: 123456
@@ -67,3 +68,4 @@ class Command(BaseCommand):
             f'\n完成！创建 {created_count} 个用户，更新 {updated_count} 个用户。'
         ))
         self.stdout.write(f'统一密码: {DEFAULT_PASSWORD}')
+

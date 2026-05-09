@@ -1,8 +1,11 @@
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from utils.response import success_response
 from apps.books.models import Book
 from apps.users.models import User, UserRole
+
+
 from apps.borrows.models import Borrow, BorrowStatus
 from apps.reservations.models import Reservation, ReservationStatus
 from apps.announcements.models import Announcement, AnnouncementStatus
@@ -10,6 +13,7 @@ from apps.announcements.models import Announcement, AnnouncementStatus
 
 class DashboardStatsView(APIView):
     """
+
     仪表盘统计数据视图
     GET /api/dashboard/stats/
     """
@@ -28,8 +32,11 @@ class DashboardStatsView(APIView):
         return success_response(stats)
 
 
+
+
 class DashboardRecentView(APIView):
     """
+
     仪表盘最近数据视图
     GET /api/dashboard/recent/
     """
@@ -72,3 +79,4 @@ class DashboardRecentView(APIView):
             'recent_announcements': announcements_data,
         }
         return success_response(data)
+
