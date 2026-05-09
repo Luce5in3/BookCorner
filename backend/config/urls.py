@@ -6,9 +6,18 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.http import JsonResponse
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # 根路径欢迎信息
+    path('', lambda request: JsonResponse({
+        'message': 'Welcome to BookCorner API',
+        'version': '1.0.0',
+        'docs': '/api/docs/',
+        'admin': '/admin/'
+    })),
     
     # API 路由
     path('api/auth/', include('apps.users.urls')),

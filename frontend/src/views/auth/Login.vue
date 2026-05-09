@@ -40,7 +40,33 @@ async function handleLogin() {
       router.push('/reader/home')
     }
   } catch (error) {
-    console.error('登录失败:', error)
+    if (error === 'cancel' || error?.toString?.().includes('cancel')) return
+    
+    // 根据错误类型显示具体反馈
+    const response = error?.response
+    const status = response?.status
+    const serverMsg = response?.data?.message
+    
+    let message
+    if (!response) {
+      // 无响应 = 网络错误
+      message = '网络连接失败，请检查网络后重试'
+    } else if (status === 401) {
+      // 401 已在 request.js 拦截器中显示，此处不再重复
+      return
+    } else if (status === 403) {
+      message = serverMsg || '账号权限不足，禁止访问'
+    } else if (status === 404) {
+      message = '登录服务不可用，请联系管理员'
+    } else if (status >= 500) {
+      message = '服务器异常，请稍后重试'
+    } else {
+      message = serverMsg || '登录失败，请重试'
+    }
+    
+    if (message) {
+      ElMessage.error(message)
+    }
   } finally {
     loading.value = false
   }
@@ -48,107 +74,120 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <el-icon size="40" color="#409EFF"><Reading /></el-icon>
-        <h1>图书角</h1>
-        <p>图书管理系统</p>
+  <div class="min-h-screen flex items-center justify-center bg-apple-white">
+    <div class="w-full max-w-[400px] px-6">
+      <!-- Logo Section - Apple Hero Style -->
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center justify-center w-14 h-14 bg-apple-black rounded-full mb-5">
+          <el-icon size="28" color="#FFFFFF"><Reading /></el-icon>
+        </div>
+        <h1 class="text-[40px] font-semibold text-near-black leading-[1.10] mb-1">图书角</h1>
+        <p class="text-[21px] font-normal text-text-secondary leading-[1.19] tracking-[0.231px]">图书管理系统</p>
       </div>
       
+      <!-- Login Form -->
       <el-form
         ref="formRef"
         :model="form"
         :rules="rules"
-        label-position="top"
-        class="login-form"
+        class="space-y-4"
       >
-        <el-form-item label="用户名" prop="username">
+        <el-form-item prop="username" class="!mb-0">
           <el-input
             v-model="form.username"
             placeholder="请输入用户名"
-            prefix-icon="User"
             size="large"
-          />
+            class="apple-input"
+          >
+            <template #prefix>
+              <el-icon class="text-text-tertiary"><User /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         
-        <el-form-item label="密码" prop="password">
+        <el-form-item prop="password" class="!mb-0">
           <el-input
             v-model="form.password"
             type="password"
             placeholder="请输入密码"
-            prefix-icon="Lock"
             size="large"
+            class="apple-input"
             show-password
             @keyup.enter="handleLogin"
-          />
-        </el-form-item>
-        
-        <el-form-item>
-          <el-button
-            type="primary"
-            size="large"
-            :loading="loading"
-            class="login-btn"
-            @click="handleLogin"
           >
-            登录
-          </el-button>
+            <template #prefix>
+              <el-icon class="text-text-tertiary"><Lock /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
       </el-form>
+
+      <!-- Login Button -->
+      <div class="mt-6">
+        <button
+          type="button"
+          :disabled="loading"
+          class="w-full h-[48px] bg-apple-blue text-white font-medium text-[17px] rounded-standard border-none cursor-pointer transition-all duration-200 hover:opacity-90 active:bg-btn-active active:text-near-black disabled:opacity-50 disabled:cursor-not-allowed leading-[48px]"
+          @click="handleLogin"
+        >
+          <span v-if="loading" class="flex items-center justify-center gap-2">
+            <el-icon class="animate-spin"><Loading /></el-icon>
+            登录中...
+          </span>
+          <span v-else>登录</span>
+        </button>
+      </div>
       
-      <div class="login-footer">
-        <span>还没有账号？</span>
-        <el-link type="primary" @click="router.push('/register')">立即注册</el-link>
+      <!-- Footer -->
+      <div class="mt-8 text-center">
+        <span class="text-[14px] text-text-tertiary tracking-[-0.224px]">还没有账号？</span>
+        <button 
+          type="button"
+          class="ml-1 text-[14px] font-normal text-link-blue hover:underline underline-offset-2 transition-colors tracking-[-0.224px]"
+          @click="router.push('/register')"
+        >
+          立即注册
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.login-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* Apple Style Input Overrides */
+:deep(.apple-input .el-input__wrapper) {
+  background-color: #fafafc !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+  border: 3px solid rgba(0, 0, 0, 0.04) !important;
+  padding: 0 14px !important;
+  height: 48px !important;
 }
 
-.login-card {
-  width: 400px;
-  padding: 40px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+:deep(.apple-input .el-input__inner) {
+  color: #1d1d1f !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.374px !important;
 }
 
-.login-header {
-  text-align: center;
-  margin-bottom: 30px;
+:deep(.apple-input .el-input__inner::placeholder) {
+  color: rgba(0, 0, 0, 0.48) !important;
 }
 
-.login-header h1 {
-  margin: 10px 0 5px;
-  font-size: 28px;
-  color: #333;
+:deep(.apple-input .el-input__prefix) {
+  margin-right: 10px !important;
 }
 
-.login-header p {
-  color: #999;
-  font-size: 14px;
+/* Remove default form item margin */
+:deep(.el-form-item) {
+  margin-bottom: 0 !important;
 }
 
-.login-form {
-  margin-bottom: 20px;
-}
-
-.login-btn {
-  width: 100%;
-}
-
-.login-footer {
-  text-align: center;
-  color: #666;
-  font-size: 14px;
+:deep(.el-form-item__error) {
+  color: #FF3B30 !important;
+  font-size: 12px !important;
+  padding-top: 4px !important;
+  letter-spacing: -0.12px !important;
 }
 </style>

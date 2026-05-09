@@ -61,87 +61,91 @@ onMounted(() => {
 
 <template>
   <div class="page-container">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>我的预约</span>
-        </div>
-      </template>
-      
-      <el-table v-loading="loading" :data="reservations" stripe>
-        <el-table-column prop="book_title" label="书名" min-width="200">
-          <template #default="{ row }">
-            <span class="book-title">{{ row.book_title }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="reserved_at" label="预约时间" width="170">
-          <template #default="{ row }">
-            {{ formatDateTime(row.reserved_at) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="expire_at" label="过期时间" width="170">
-          <template #default="{ row }">
-            {{ formatDateTime(row.expire_at) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="notify_at" label="通知时间" width="170">
-          <template #default="{ row }">
-            {{ row.notify_at ? formatDateTime(row.notify_at) : '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status, 'reservation')">
-              {{ RESERVATION_STATUS[row.status] }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="100" fixed="right">
-          <template #default="{ row }">
-            <el-button
-              v-if="canCancel(row)"
-              type="danger"
-              link
-              @click="handleCancel(row)"
-            >
-              取消
-            </el-button>
-            <span v-else class="text-muted">-</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination
-          v-model:current-page="queryParams.page"
-          :page-size="queryParams.page_size"
-          :total="total"
-          layout="prev, pager, next, total"
-          @current-change="handlePageChange"
-        />
+    <div class="bg-apple-white rounded-large shadow-card overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-[rgba(0,0,0,0.06)]">
+        <h2 class="text-[28px] font-normal leading-[1.14] tracking-[0.196px] text-near-black">我的预约</h2>
       </div>
-    </el-card>
+      
+      <div class="p-6">
+        <el-table v-loading="loading" :data="reservations" class="apple-table">
+          <el-table-column prop="book_title" label="书名" min-width="200">
+            <template #default="{ row }">
+              <span class="font-semibold text-near-black tracking-[-0.224px]">{{ row.book_title }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="reserved_at" label="预约时间" width="170">
+            <template #default="{ row }">
+              <span class="text-text-secondary">{{ formatDateTime(row.reserved_at) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="expire_at" label="过期时间" width="170">
+            <template #default="{ row }">
+              <span class="text-text-secondary">{{ formatDateTime(row.expire_at) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="notify_at" label="通知时间" width="170">
+            <template #default="{ row }">
+              <span class="text-text-secondary">{{ row.notify_at ? formatDateTime(row.notify_at) : '-' }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="100">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status, 'reservation')" size="small" class="!border-none !rounded-pill !text-[12px]">
+                {{ RESERVATION_STATUS[row.status] }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <button
+                v-if="canCancel(row)"
+                class="text-[14px] text-danger-red hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer"
+                @click="handleCancel(row)"
+              >
+                取消
+              </button>
+              <span v-else class="text-text-tertiary">-</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination
+            v-model:current-page="queryParams.page"
+            :page-size="queryParams.page_size"
+            :total="total"
+            layout="prev, pager, next, total"
+            @current-change="handlePageChange"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.book-title {
-  font-weight: 500;
-}
-
-.text-muted {
-  color: #c0c4cc;
-}
-
 .pagination-container {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* Apple Table Overrides */
+:deep(.apple-table) {
+  --el-table-border-color: rgba(0, 0, 0, 0.06);
+  --el-table-header-bg-color: #f5f5f7;
+}
+
+:deep(.apple-table th.el-table__cell) {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: rgba(0, 0, 0, 0.48) !important;
+  letter-spacing: -0.12px !important;
+}
+
+:deep(.apple-table td.el-table__cell) {
+  font-size: 14px !important;
+  letter-spacing: -0.224px !important;
 }
 </style>

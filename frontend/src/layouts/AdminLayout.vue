@@ -48,146 +48,139 @@ async function handleLogout() {
 </script>
 
 <template>
-  <el-container class="h-full">
-    <!-- 侧边栏 -->
-    <el-aside :width="isCollapse ? '64px' : '220px'" class="aside-container">
-      <div class="logo-container">
-        <el-icon size="24" color="#409EFF"><Reading /></el-icon>
-        <span v-if="!isCollapse" class="logo-text">图书角管理系统</span>
+  <div class="min-h-screen flex bg-apple-gray">
+    <!-- Sidebar - Apple Dark Theme -->
+    <aside 
+      class="fixed left-0 top-0 h-screen bg-near-black transition-all duration-300 z-50 flex flex-col"
+      :class="isCollapse ? 'w-16' : 'w-56'"
+    >
+      <!-- Logo -->
+      <div class="h-[48px] flex items-center justify-center gap-2 border-b border-[rgba(255,255,255,0.1)]">
+        <div class="w-7 h-7 bg-apple-blue rounded-full flex items-center justify-center flex-shrink-0">
+          <el-icon size="14" color="#FFFFFF"><Reading /></el-icon>
+        </div>
+        <span 
+          v-if="!isCollapse" 
+          class="text-[15px] font-semibold text-white tracking-[-0.224px]"
+        >
+          图书角管理
+        </span>
       </div>
       
-      <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        background-color="#001529"
-        text-color="#fff"
-        active-text-color="#409EFF"
-        @select="handleMenuSelect"
-      >
-        <el-menu-item v-for="item in menuItems" :key="item.index" :index="item.index">
-          <el-icon><component :is="item.icon" /></el-icon>
-          <template #title>{{ item.title }}</template>
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
-    
-    <el-container>
-      <!-- 顶部导航 -->
-      <el-header class="header-container">
-        <div class="header-left">
-          <el-icon 
-            class="collapse-btn" 
-            size="20" 
-            @click="toggleCollapse"
-          >
+      <!-- Menu -->
+      <nav class="flex-1 py-3 overflow-y-auto">
+        <ul class="space-y-1 px-2">
+          <li v-for="item in menuItems" :key="item.index">
+            <button
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-standard transition-all duration-200 text-left"
+              :class="activeMenu === item.index 
+                ? 'bg-apple-blue text-white' 
+                : 'text-white/70 hover:bg-[rgba(255,255,255,0.08)] hover:text-white'"
+              @click="handleMenuSelect(item.index)"
+            >
+              <el-icon size="16" class="flex-shrink-0">
+                <component :is="item.icon" />
+              </el-icon>
+              <span 
+                v-if="!isCollapse" 
+                class="text-[14px] font-normal tracking-[-0.224px] whitespace-nowrap"
+              >
+                {{ item.title }}
+              </span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      
+      <!-- Collapse Button -->
+      <div class="p-2.5 border-t border-[rgba(255,255,255,0.1)]">
+        <button
+          class="w-full flex items-center justify-center p-2 rounded-standard text-white/70 hover:bg-[rgba(255,255,255,0.08)] hover:text-white transition-all duration-200"
+          @click="toggleCollapse"
+        >
+          <el-icon size="16">
             <component :is="isCollapse ? 'Expand' : 'Fold'" />
           </el-icon>
-          <el-breadcrumb separator="/">
-            <el-breadcrumb-item>管理后台</el-breadcrumb-item>
-            <el-breadcrumb-item>{{ route.meta.title }}</el-breadcrumb-item>
-          </el-breadcrumb>
-        </div>
-        
-        <div class="header-right">
-          <el-dropdown>
-            <span class="user-info">
-              <el-avatar :size="32" icon="UserFilled" />
-              <span class="username">{{ username }}</span>
-              <el-icon><ArrowDown /></el-icon>
-            </span>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <div 
+      class="flex-1 flex flex-col min-h-screen transition-all duration-300"
+      :class="isCollapse ? 'ml-16' : 'ml-56'"
+    >
+      <!-- Header - Apple Glass -->
+      <header class="sticky top-0 z-40 bg-[rgba(255,255,255,0.72)] backdrop-blur-[20px] backdrop-saturate-[180%] border-b border-[rgba(0,0,0,0.1)] h-[48px] flex items-center justify-end px-5">
+        <!-- User Menu -->
+        <div class="flex items-center gap-3">
+          <el-dropdown trigger="click">
+            <div class="flex items-center gap-2 cursor-pointer py-1.5">
+              <div class="w-7 h-7 bg-apple-gray rounded-full flex items-center justify-center">
+                <el-icon size="14" class="text-text-tertiary"><UserFilled /></el-icon>
+              </div>
+              <span class="text-[14px] text-text-secondary tracking-[-0.224px]">{{ username }}</span>
+              <el-icon size="12" class="text-text-tertiary"><ArrowDown /></el-icon>
+            </div>
             <template #dropdown>
-              <el-dropdown-menu>
+              <el-dropdown-menu class="!rounded-standard">
                 <el-dropdown-item @click="router.push('/reader/home')">
-                  <el-icon><House /></el-icon>读者端
+                  <el-icon class="mr-2"><House /></el-icon>读者端
                 </el-dropdown-item>
                 <el-dropdown-item divided @click="handleLogout">
-                  <el-icon><SwitchButton /></el-icon>退出登录
+                  <el-icon class="mr-2"><SwitchButton /></el-icon>退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
         </div>
-      </el-header>
+      </header>
       
-      <!-- 主内容区 -->
-      <el-main class="main-container">
+      <!-- Main Content -->
+      <main class="flex-1 p-5">
         <router-view />
-      </el-main>
-    </el-container>
-  </el-container>
+      </main>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.aside-container {
-  background-color: #001529;
-  transition: width 0.3s;
-  overflow: hidden;
+/* Dropdown menu styling - Apple */
+:deep(.el-dropdown-menu) {
+  border-radius: 8px !important;
+  border: none !important;
+  box-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px !important;
+  padding: 4px !important;
 }
 
-.logo-container {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-bottom: 1px solid #002140;
+:deep(.el-dropdown-menu__item) {
+  border-radius: 5px !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #1d1d1f !important;
+  letter-spacing: -0.224px !important;
 }
 
-.logo-text {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  white-space: nowrap;
+:deep(.el-dropdown-menu__item:hover) {
+  background-color: #f5f5f7 !important;
 }
 
-.el-menu {
-  border-right: none;
+/* Scrollbar for sidebar */
+aside::-webkit-scrollbar {
+  width: 4px;
 }
 
-.header-container {
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+aside::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+aside::-webkit-scrollbar-thumb {
+  background: #2a2a2d;
+  border-radius: 2px;
 }
 
-.collapse-btn {
-  cursor: pointer;
-  color: #666;
-}
-
-.collapse-btn:hover {
-  color: #409EFF;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: #333;
-}
-
-.username {
-  font-size: 14px;
-}
-
-.main-container {
-  background-color: #f5f7fa;
-  padding: 0;
-  overflow: auto;
+aside::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3d;
 }
 </style>

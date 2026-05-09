@@ -160,3 +160,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
+# AI 图书简介（DeepSeek）
+AI_API_KEY = config('AI_API_KEY', default='')
+AI_BASE_URL = config('AI_BASE_URL', default='https://api.deepseek.com')
+AI_MODEL = config('AI_MODEL', default='deepseek-chat')

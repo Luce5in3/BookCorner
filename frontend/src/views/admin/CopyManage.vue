@@ -22,7 +22,6 @@ const rules = {
   book_id: [{ 
     required: true, 
     validator: (rule, value, callback) => {
-      // 编辑时不验证，新增时必填
       if (!form.id && !value) {
         callback(new Error('请选择图书'))
       } else {
@@ -71,13 +70,8 @@ function handleAdd() {
 function handleEdit(row) {
   dialogTitle.value = '编辑副本'
   Object.assign(form, { 
-    id: row.id, 
-    book_id: row.book_id, 
-    book_title: row.book_title,  // 保存图书名称用于显示
-    barcode: row.barcode, 
-    condition: row.condition, 
-    status: row.status, 
-    location: row.location || '' 
+    id: row.id, book_id: row.book_id, book_title: row.book_title,
+    barcode: row.barcode, condition: row.condition, status: row.status, location: row.location || '' 
   })
   dialogVisible.value = true
 }
@@ -114,57 +108,64 @@ onMounted(() => { fetchCopies(); fetchBooks() })
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="search-bar">
-      <el-row :gutter="20">
-        <el-col :span="6">
-          <el-select v-model="queryParams.book" placeholder="选择图书" clearable filterable>
+  <div>
+    <!-- Search Bar -->
+    <div class="bg-apple-white rounded-large shadow-card p-5 mb-5">
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="flex-1 min-w-[180px]">
+          <el-select v-model="queryParams.book" placeholder="选择图书" clearable filterable class="w-full">
             <el-option v-for="book in books" :key="book.id" :label="book.title" :value="book.id" />
           </el-select>
-        </el-col>
-        <el-col :span="4">
+        </div>
+        <div class="w-[120px]">
           <el-select v-model="queryParams.status" placeholder="状态" clearable>
             <el-option v-for="(label, value) in COPY_STATUS" :key="value" :label="label" :value="Number(value)" />
           </el-select>
-        </el-col>
-        <el-col :span="6">
-          <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
-          <el-button type="success" icon="Plus" @click="handleAdd">入库</el-button>
-        </el-col>
-      </el-row>
-    </div>
-    
-    <div class="table-container">
-      <el-table v-loading="loading" :data="copies" stripe>
-        <el-table-column prop="book_title" label="图书" min-width="200" />
-        <el-table-column prop="barcode" label="条码" width="150" />
-        <el-table-column prop="location" label="位置" width="120" />
-        <el-table-column prop="condition" label="品相" width="80">
-          <template #default="{ row }">{{ COPY_CONDITION[row.condition] }}</template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status, 'copy')">{{ COPY_STATUS[row.status] }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+        </div>
+        <button class="h-[40px] px-4 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" @click="handleSearch">搜索</button>
+        <button class="h-[40px] px-4 bg-near-black text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-85 transition-opacity tracking-[-0.224px]" @click="handleAdd">入库</button>
       </div>
     </div>
     
+    <!-- Table -->
+    <div class="bg-apple-white rounded-large shadow-card overflow-hidden">
+      <div class="p-5">
+        <el-table v-loading="loading" :data="copies" class="apple-table">
+          <el-table-column prop="book_title" label="图书" min-width="200">
+            <template #default="{ row }">
+              <span class="font-semibold text-near-black tracking-[-0.224px]">{{ row.book_title }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="barcode" label="条码" width="150" />
+          <el-table-column prop="location" label="位置" width="120" />
+          <el-table-column prop="condition" label="品相" width="80">
+            <template #default="{ row }">{{ COPY_CONDITION[row.condition] }}</template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="100">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status, 'copy')" size="small" class="!border-none !rounded-pill !text-[12px]">{{ COPY_STATUS[row.status] }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="150" fixed="right">
+            <template #default="{ row }">
+              <div class="flex gap-2">
+                <button class="text-[14px] text-link-blue hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleEdit(row)">编辑</button>
+                <button class="text-[14px] text-danger-red hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleDelete(row)">删除</button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dialog -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px">
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" class="apple-form">
         <el-form-item label="图书" prop="book_id">
-          <!-- 编辑时显示图书名称（只读） -->
           <el-input v-if="form.id" :model-value="form.book_title" disabled />
-          <!-- 新增时选择图书 -->
           <el-select v-else v-model="form.book_id" placeholder="选择图书" filterable style="width: 100%">
             <el-option v-for="book in books" :key="book.id" :label="book.title" :value="book.id" />
           </el-select>
@@ -187,15 +188,17 @@ onMounted(() => { fetchCopies(); fetchBooks() })
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <button class="px-4 py-2 text-[14px] text-text-secondary rounded-standard border border-[rgba(0,0,0,0.1)] bg-transparent cursor-pointer hover:bg-apple-gray transition-colors tracking-[-0.224px] mr-2" @click="dialogVisible = false">取消</button>
+        <button class="px-4 py-2 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" @click="handleSubmit">确定</button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <style scoped>
-.search-bar { background: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-.table-container { background: #fff; padding: 20px; border-radius: 4px; }
 .pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
+:deep(.apple-table) { --el-table-border-color: rgba(0, 0, 0, 0.06); --el-table-header-bg-color: #f5f5f7; }
+:deep(.apple-table th.el-table__cell) { font-size: 12px !important; font-weight: 600 !important; color: rgba(0, 0, 0, 0.48) !important; letter-spacing: -0.12px !important; }
+:deep(.apple-table td.el-table__cell) { font-size: 14px !important; letter-spacing: -0.224px !important; }
+.apple-form :deep(.el-form-item__label) { font-size: 14px !important; font-weight: 600 !important; color: #1d1d1f !important; letter-spacing: -0.224px !important; }
 </style>

@@ -8,6 +8,9 @@ DEBUG = True
 # 开发环境允许所有主机
 ALLOWED_HOSTS = ['*']
 
+# 开发环境允许所有跨域请求
+CORS_ALLOW_ALL_ORIGINS = True
+
 # 开发环境日志配置
 LOGGING = {
     'version': 1,

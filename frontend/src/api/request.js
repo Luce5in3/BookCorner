@@ -53,10 +53,16 @@ request.interceptors.response.use(
     if (response?.status === 401) {
       const refreshToken = getRefreshToken()
       
-      // 没有 refresh token，直接跳转登录
+      // 没有 refresh token，可能是登录失败或其他无 token 的 401
       if (!refreshToken) {
         clearTokens()
-        router.push('/login')
+        // 显示后端返回的具体错误信息
+        const message = response?.data?.message || '认证失败，请重新登录'
+        ElMessage.error(message)
+        // 仅在非登录页时跳转
+        if (!config.url?.includes('/auth/login/')) {
+          router.push('/login')
+        }
         return Promise.reject(error)
       }
       

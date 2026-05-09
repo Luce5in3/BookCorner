@@ -2,79 +2,434 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 全局样式 */
+/* Apple Design System - Global Styles */
+
+/* Root Variables */
+:root {
+  /* Primary Colors */
+  --apple-black: #000000;
+  --apple-white: #FFFFFF;
+
+  /* Surface Colors */
+  --apple-gray: #f5f5f7;
+  --near-black: #1d1d1f;
+
+  /* Dark Surfaces */
+  --dark-surface-1: #272729;
+  --dark-surface-2: #262628;
+  --dark-surface-3: #28282a;
+  --dark-surface-4: #2a2a2d;
+  --dark-surface-5: #242426;
+
+  /* Interactive Colors */
+  --apple-blue: #0071e3;
+  --link-blue: #0066cc;
+  --bright-blue: #2997ff;
+
+  /* Text Colors */
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-tertiary: rgba(0, 0, 0, 0.48);
+
+  /* Button States */
+  --btn-active: #ededf2;
+  --btn-default-light: #fafafc;
+  --overlay: rgba(210, 210, 215, 0.64);
+
+  /* Focus */
+  --sk-focus-color: #0071e3;
+}
+
+/* Base Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Base Typography */
+html {
+  font-family: -apple-system, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.47;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 html, body, #app {
   width: 100%;
   height: 100%;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  color: var(--text-primary);
+  background: var(--apple-white);
 }
 
-/* 滚动条样式 */
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  font-family: -apple-system, 'SF Pro Display', 'SF Pro Icons', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.10;
+}
+
+h1 {
+  font-size: 56px;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+
+h2 {
+  font-size: 40px;
+  line-height: 1.10;
+}
+
+h3 {
+  font-size: 28px;
+  line-height: 1.14;
+  font-weight: 400;
+  letter-spacing: 0.196px;
+}
+
+p {
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--text-secondary);
+}
+
+/* Apple Blue CTA Button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background-color: var(--apple-blue);
+  color: var(--apple-white);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:active {
+  background-color: var(--btn-active);
+  color: var(--near-black);
+}
+
+.btn-primary:focus {
+  outline: 2px solid var(--sk-focus-color);
+  outline-offset: 2px;
+}
+
+/* Primary Dark Button */
+.btn-primary-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background-color: var(--near-black);
+  color: var(--apple-white);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.btn-primary-dark:hover {
+  opacity: 0.85;
+}
+
+/* Pill Link - Learn More / Shop */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: var(--link-blue);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  border-radius: 980px;
+  border: 1px solid var(--link-blue);
+  cursor: pointer;
+  transition: all 200ms ease;
+  text-decoration: none;
+}
+
+.btn-pill:hover {
+  text-decoration: underline;
+}
+
+.btn-pill-dark {
+  color: var(--bright-blue);
+  border-color: var(--bright-blue);
+}
+
+/* Disabled Button */
+.btn-disabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background-color: var(--apple-gray);
+  color: var(--text-tertiary);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1;
+  border-radius: 8px;
+  border: none;
+  cursor: not-allowed;
+}
+
+/* Icon Button */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--overlay);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.btn-icon:hover {
+  background-color: rgba(210, 210, 215, 0.8);
+}
+
+.btn-icon:active {
+  transform: scale(0.9);
+}
+
+/* Input Styles - Apple Filter/Search Button Style */
+.input-field {
+  width: 100%;
+  padding: 0 14px;
+  background-color: var(--btn-default-light);
+  border: 3px solid rgba(0, 0, 0, 0.04);
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 17px;
+  line-height: 2.41;
+  color: var(--text-primary);
+  transition: all 200ms ease;
+}
+
+.input-field::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input-field:focus {
+  border-color: var(--apple-blue);
+  outline: 2px solid var(--sk-focus-color);
+}
+
+.input-field.error {
+  border-color: #FF3B30;
+}
+
+/* Card Styles - Apple minimal */
+.card {
+  background-color: var(--apple-gray);
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+}
+
+.card-elevated {
+  background-color: var(--apple-white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
+  border: none;
+}
+
+.card-dark {
+  background-color: var(--dark-surface-1);
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+}
+
+/* Navigation Styles */
+.nav-link {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: -0.12px;
+  color: var(--apple-white);
+  text-decoration: none;
+  transition: opacity 200ms ease;
+}
+
+.nav-link:hover {
+  opacity: 0.8;
+}
+
+.nav-link-active {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Text Styles - Apple Typography */
+.text-hero {
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+
+.text-section {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.10;
+}
+
+.text-tile {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+}
+
+.text-caption {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+  color: var(--text-secondary);
+}
+
+.text-micro {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.33;
+  letter-spacing: -0.12px;
+  color: var(--text-tertiary);
+}
+
+/* Scrollbar - Apple Minimal */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: rgba(0, 0, 0, 0.3);
 }
 
-/* Element Plus 覆盖样式 */
-.el-message-box {
-  max-width: 420px;
+/* Utility Classes */
+
+/* Section Padding */
+.section-padding {
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
-/* 表格样式优化 */
-.el-table th.el-table__cell {
-  background-color: #fafafa;
+@media (min-width: 640px) {
+  .section-padding {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
 }
 
-/* 卡片阴影 */
-.card-shadow {
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
 }
 
-/* 页面容器 */
+/* Container - Apple 980px max */
+.container-apple {
+  width: 100%;
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container-wide {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Focus Ring */
+.focus-ring:focus {
+  outline: 2px solid var(--sk-focus-color);
+  outline-offset: 2px;
+}
+
+/* Element Plus Overrides - Apple Style */
+.el-button--primary {
+  background-color: var(--apple-blue) !important;
+  border-color: var(--apple-blue) !important;
+  border-radius: 8px !important;
+  font-weight: 400 !important;
+  transition: all 200ms ease !important;
+}
+
+.el-button--primary:hover {
+  opacity: 0.85 !important;
+  background-color: var(--apple-blue) !important;
+  border-color: var(--apple-blue) !important;
+}
+
+.el-button--primary:active {
+  background-color: var(--btn-active) !important;
+  border-color: var(--btn-active) !important;
+  color: var(--near-black) !important;
+}
+
+.el-input__wrapper {
+  background-color: var(--btn-default-light) !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+  border: 3px solid rgba(0, 0, 0, 0.04) !important;
+}
+
+.el-input__inner {
+  color: var(--text-primary) !important;
+}
+
+.el-input__inner::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* Page Container */
 .page-container {
-  padding: 20px;
-  background-color: #f5f7fa;
   min-height: 100%;
+  background-color: var(--apple-gray);
 }
 
-/* 搜索栏 */
-.search-bar {
-  background: #fff;
+.page-content {
+  width: 100%;
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
   padding: 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-/* 表格容器 */
-.table-container {
-  background: #fff;
-  padding: 20px;
-  border-radius: 4px;
-}
-
-/* 分页容器 */
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
 }

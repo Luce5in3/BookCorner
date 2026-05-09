@@ -1,21 +1,30 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getBook } from '@/api/books'
+import { getBook, generateDescription } from '@/api/books'
 import { createReservation, getMyReservations } from '@/api/reservations'
 import { formatDate, formatMoney, BOOK_STATUS } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import imageCache from '@/utils/imageCache'
 
 const route = useRoute()
 const loading = ref(false)
 const book = ref(null)
 const isReserved = ref(false)  // 是否已预约
+const coverUrl = ref('')  // 本地缓存的封面 URL
+const aiLoading = ref(false)  // AI 简介生成中
+const aiDescription = ref('')  // AI 生成的简介
+const aiKeywords = ref('')  // 用户关注的关键词
 
 async function fetchBook() {
   loading.value = true
   try {
     const data = await getBook(route.params.id)
     book.value = data
+    // 加载封面缓存
+    if (data.cover_url) {
+      coverUrl.value = await imageCache.getImage(data.id, data.cover_url)
+    }
     // 检查是否已预约
     await checkReservation()
   } catch (error) {
@@ -53,98 +62,158 @@ async function handleReserve() {
   }
 }
 
+async function handleGenerateDescription() {
+  aiLoading.value = true
+  try {
+    const data = await generateDescription(book.value.id, aiKeywords.value)
+    aiDescription.value = data.description
+    book.value.description = data.description
+    ElMessage.success('AI 简介生成成功')
+  } catch (error) {
+    console.error('AI 简介生成失败:', error)
+    ElMessage.error(error?.response?.data?.message || 'AI 简介生成失败，请稍后重试')
+  } finally {
+    aiLoading.value = false
+  }
+}
+
 onMounted(() => {
   fetchBook()
+})
+
+onUnmounted(() => {
+  // 释放 blob URL，避免内存泄漏
+  if (coverUrl.value && coverUrl.value.startsWith('blob:')) {
+    URL.revokeObjectURL(coverUrl.value)
+  }
 })
 </script>
 
 <template>
   <div v-loading="loading" class="detail-container">
     <template v-if="book">
-      <el-card class="book-detail-card">
-        <el-row :gutter="40">
+      <!-- Hero Section - Apple Product Hero Module -->
+      <div class="bg-apple-black rounded-large p-8 mb-6">
+        <div class="flex flex-col md:flex-row gap-8 items-start">
           <!-- 封面 -->
-          <el-col :span="6">
+          <div class="w-full md:w-[220px] flex-shrink-0">
             <div class="book-cover">
               <el-image
-                :src="book.cover_url || '/default-cover.png'"
+                :src="coverUrl || book.cover_url || '/default-cover.png'"
                 fit="cover"
                 class="cover-img"
               >
                 <template #error>
                   <div class="cover-placeholder">
-                    <el-icon size="80"><Reading /></el-icon>
+                    <el-icon size="60" class="text-white/32"><Reading /></el-icon>
                   </div>
                 </template>
               </el-image>
             </div>
-          </el-col>
+          </div>
           
           <!-- 详情 -->
-          <el-col :span="18">
-            <div class="book-info">
-              <h1 class="book-title">{{ book.title }}</h1>
-              
-              <div class="book-meta">
-                <el-tag :type="book.status === 1 ? 'success' : 'info'" size="large">
-                  {{ BOOK_STATUS[book.status] }}
-                </el-tag>
-                <el-tag 
-                  :type="book.available_copies > 0 ? 'success' : 'danger'" 
-                  size="large"
-                >
-                  可借 {{ book.available_copies }} / 总 {{ book.total_copies }}
-                </el-tag>
+          <div class="flex-1 text-white">
+            <h1 class="book-title text-[40px] font-semibold leading-[1.10] tracking-[-0.28px] mb-3">{{ book.title }}</h1>
+            <p class="text-[21px] font-normal leading-[1.19] tracking-[0.231px] text-white/90 mb-6">{{ book.author }}</p>
+            
+            <!-- 状态标签 -->
+            <div class="flex gap-3 mb-6">
+              <span 
+                class="inline-flex items-center px-3 py-1 rounded-pill text-[12px] tracking-[-0.12px]"
+                :class="book.status === 1 ? 'bg-[rgba(0,125,72,0.2)] text-[#4cd964]' : 'bg-white/10 text-white/48'"
+              >
+                {{ BOOK_STATUS[book.status] }}
+              </span>
+              <span 
+                class="inline-flex items-center px-3 py-1 rounded-pill text-[12px] tracking-[-0.12px]"
+                :class="book.available_copies > 0 ? 'bg-[rgba(0,125,72,0.2)] text-[#4cd964]' : 'bg-[rgba(255,59,48,0.2)] text-[#ff6b6b]'"
+              >
+                可借 {{ book.available_copies }} / 总 {{ book.total_copies }}
+              </span>
+            </div>
+            
+            <!-- 详情信息 -->
+            <div class="grid grid-cols-2 gap-x-8 gap-y-3 mb-6">
+              <div v-if="book.isbn" class="detail-field">
+                <span class="detail-label">ISBN</span>
+                <span class="detail-value">{{ book.isbn }}</span>
               </div>
-              
-              <el-descriptions :column="2" border class="info-table">
-                <el-descriptions-item label="作者">{{ book.author }}</el-descriptions-item>
-                <el-descriptions-item label="ISBN">{{ book.isbn || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="出版社">{{ book.publisher || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="出版日期">{{ formatDate(book.publish_date) }}</el-descriptions-item>
-                <el-descriptions-item label="分类">{{ book.category_name || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="语言">{{ book.language || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="定价">{{ formatMoney(book.price) }}</el-descriptions-item>
-              </el-descriptions>
-              
-              <div class="action-buttons">
-                <el-button 
-                  v-if="book.available_copies === 0"
-                  type="primary" 
-                  size="large"
-                  icon="Clock"
-                  @click="handleReserve"
-                >
-                  预约此书（无库存）
-                </el-button>
-                <el-button 
-                  v-else
-                  type="success" 
-                  size="large"
-                  icon="Clock"
-                  @click="handleReserve"
-                >
-                  预约此书
-                </el-button>
-                <el-text v-if="book.available_copies > 0" type="success" class="ml-10">
-                  <el-icon><InfoFilled /></el-icon>
-                  有 {{ book.available_copies }} 本可借，也可直接到图书馆借阅
-                </el-text>
+              <div v-if="book.publisher" class="detail-field">
+                <span class="detail-label">出版社</span>
+                <span class="detail-value">{{ book.publisher }}</span>
+              </div>
+              <div v-if="book.publish_date" class="detail-field">
+                <span class="detail-label">出版日期</span>
+                <span class="detail-value">{{ formatDate(book.publish_date) }}</span>
+              </div>
+              <div v-if="book.category_name" class="detail-field">
+                <span class="detail-label">分类</span>
+                <span class="detail-value">{{ book.category_name }}</span>
+              </div>
+              <div v-if="book.language" class="detail-field">
+                <span class="detail-label">语言</span>
+                <span class="detail-value">{{ book.language }}</span>
+              </div>
+              <div v-if="book.price" class="detail-field">
+                <span class="detail-label">定价</span>
+                <span class="detail-value">{{ formatMoney(book.price) }}</span>
               </div>
             </div>
-          </el-col>
-        </el-row>
-      </el-card>
+            
+            <!-- CTA Buttons - Apple Pill Style -->
+            <div class="flex flex-wrap gap-3">
+              <button 
+                class="px-5 py-2.5 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]"
+                @click="handleReserve"
+              >
+                <el-icon class="mr-1"><Clock /></el-icon>
+                {{ book.available_copies === 0 ? '预约此书（无库存）' : '预约此书' }}
+              </button>
+              <span v-if="book.available_copies > 0" class="inline-flex items-center text-[14px] text-white/48 tracking-[-0.224px] py-2.5">
+                <el-icon class="mr-1"><InfoFilled /></el-icon>
+                有 {{ book.available_copies }} 本可借，也可直接到图书馆借阅
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
       
-      <!-- 简介 -->
-      <el-card v-if="book.description" class="description-card">
-        <template #header>
-          <span>图书简介</span>
-        </template>
-        <div class="description-content">
+      <!-- 简介 - Apple Light Section -->
+      <div class="bg-apple-white rounded-large p-8 shadow-card">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-[28px] font-normal leading-[1.14] tracking-[0.196px] text-near-black">图书简介</h2>
+          <button
+            class="inline-flex items-center gap-1.5 px-4 py-2 bg-apple-blue text-white text-[13px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.12px] disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="aiLoading"
+            @click="handleGenerateDescription"
+          >
+            <el-icon :class="{ 'animate-spin': aiLoading }"><component :is="aiLoading ? 'Loading' : 'MagicStick'" /></el-icon>
+            {{ aiLoading ? '生成中...' : (book.description ? '重新生成' : 'AI 生成简介') }}
+          </button>
+        </div>
+        <!-- 关键词输入 -->
+        <div class="flex items-start gap-3 mb-5">
+          <span class="text-[15px] text-text-secondary tracking-[-0.12px] whitespace-nowrap font-medium pt-3">关注重点</span>
+          <textarea
+            v-model="aiKeywords"
+            rows="1"
+            placeholder="如：写作手法、人物塑造、历史背景..."
+            class="w-[300px] py-3 px-4 bg-[#fafafc] rounded-standard border-[3px] border-[rgba(0,0,0,0.04)] text-[16px] text-near-black tracking-[-0.224px] outline-none focus:border-apple-blue/40 transition-colors placeholder:text-[15px] placeholder:text-[rgba(0,0,0,0.32)] resize-none leading-relaxed"
+          ></textarea>
+        </div>
+        <div v-if="aiLoading && !book.description" class="flex flex-col items-center justify-center py-12 gap-3">
+          <el-icon size="32" class="animate-spin text-apple-blue"><Loading /></el-icon>
+          <p class="text-[14px] text-text-tertiary tracking-[-0.224px]">AI 正在撰写简介，请稍候...</p>
+        </div>
+        <div v-else-if="book.description" class="description-content">
           {{ book.description }}
         </div>
-      </el-card>
+        <div v-else class="flex flex-col items-center justify-center py-12 gap-3">
+          <el-icon size="32" class="text-text-tertiary"><Document /></el-icon>
+          <p class="text-[14px] text-text-tertiary tracking-[-0.224px]">暂无简介，填写关注重点后点击生成</p>
+        </div>
+      </div>
     </template>
     
     <el-empty v-else-if="!loading" description="图书不存在" />
@@ -152,18 +221,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.detail-container {
-  padding: 20px;
-}
-
-.book-detail-card {
-  margin-bottom: 20px;
-}
-
 .book-cover {
   width: 100%;
   aspect-ratio: 3/4;
-  background: #f5f7fa;
+  background: #1d1d1f;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -179,41 +240,38 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ccc;
-}
-
-.book-info {
-  padding: 20px 0;
 }
 
 .book-title {
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 20px;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-.book-meta {
+.detail-field {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.info-table {
-  margin-bottom: 30px;
+.detail-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.56);
+  letter-spacing: -0.12px;
+  line-height: 1.33;
 }
 
-.action-buttons {
-  margin-top: 20px;
-}
-
-.description-card {
-  margin-bottom: 20px;
+.detail-value {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.224px;
+  line-height: 1.29;
 }
 
 .description-content {
-  line-height: 1.8;
-  color: #666;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: rgba(0, 0, 0, 0.8);
   white-space: pre-wrap;
+  font-size: 17px;
 }
 </style>

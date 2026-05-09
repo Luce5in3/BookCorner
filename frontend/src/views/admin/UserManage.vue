@@ -56,62 +56,65 @@ onMounted(() => { fetchUsers() })
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="search-bar">
-      <el-row :gutter="20">
-        <el-col :span="6">
-          <el-input v-model="queryParams.search" placeholder="搜索用户名/姓名" clearable @keyup.enter="handleSearch" />
-        </el-col>
-        <el-col :span="4">
+  <div>
+    <!-- Search Bar -->
+    <div class="bg-apple-white rounded-large shadow-card p-5 mb-5">
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="flex-1 min-w-[180px]">
+          <el-input v-model="queryParams.search" placeholder="搜索用户名/姓名" clearable class="apple-input" @keyup.enter="handleSearch" />
+        </div>
+        <div class="w-[120px]">
           <el-select v-model="queryParams.role" placeholder="角色" clearable>
             <el-option v-for="(label, value) in USER_ROLE" :key="value" :label="label" :value="Number(value)" />
           </el-select>
-        </el-col>
-        <el-col :span="4">
+        </div>
+        <div class="w-[120px]">
           <el-select v-model="queryParams.status" placeholder="状态" clearable>
             <el-option v-for="(label, value) in USER_STATUS" :key="value" :label="label" :value="Number(value)" />
           </el-select>
-        </el-col>
-        <el-col :span="4">
-          <el-button type="primary" icon="Search" @click="handleSearch">搜索</el-button>
-        </el-col>
-      </el-row>
+        </div>
+        <button class="h-[40px] px-4 bg-apple-blue text-white text-[14px] rounded-standard border-none cursor-pointer hover:opacity-90 transition-opacity tracking-[-0.224px]" @click="handleSearch">搜索</button>
+      </div>
     </div>
     
-    <div class="table-container">
-      <el-table v-loading="loading" :data="users" stripe>
-        <el-table-column prop="username" label="用户名" width="120" />
-        <el-table-column prop="real_name" label="真实姓名" width="120" />
-        <el-table-column prop="email" label="邮箱" min-width="180" />
-        <el-table-column prop="phone" label="手机号" width="130" />
-        <el-table-column prop="role" label="角色" width="120">
-          <template #default="{ row }">
-            <el-select v-model="row.role" size="small" @change="handleChangeRole(row, $event)">
-              <el-option v-for="(label, value) in USER_ROLE" :key="value" :label="label" :value="Number(value)" />
-            </el-select>
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="80">
-          <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status, 'user')">{{ USER_STATUS[row.status] }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="100" fixed="right">
-          <template #default="{ row }">
-            <el-button v-if="row.status === 1" type="danger" link @click="handleToggleStatus(row)">禁用</el-button>
-            <el-button v-else type="success" link @click="handleToggleStatus(row)">启用</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div v-if="total > 0" class="pagination-container">
-        <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+    <!-- Table -->
+    <div class="bg-apple-white rounded-large shadow-card overflow-hidden">
+      <div class="p-5">
+        <el-table v-loading="loading" :data="users" class="apple-table">
+          <el-table-column prop="username" label="用户名" width="120" />
+          <el-table-column prop="real_name" label="真实姓名" width="120" />
+          <el-table-column prop="email" label="邮箱" min-width="180" />
+          <el-table-column prop="phone" label="手机号" width="130" />
+          <el-table-column prop="role" label="角色" width="120">
+            <template #default="{ row }">
+              <el-select v-model="row.role" size="small" @change="handleChangeRole(row, $event)">
+                <el-option v-for="(label, value) in USER_ROLE" :key="value" :label="label" :value="Number(value)" />
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="状态" width="80">
+            <template #default="{ row }">
+              <el-tag :type="getStatusTagType(row.status, 'user')" size="small" class="!border-none !rounded-pill !text-[12px]">{{ USER_STATUS[row.status] }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <button v-if="row.status === 1" class="text-[14px] text-danger-red hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleToggleStatus(row)">禁用</button>
+              <button v-else class="text-[14px] text-success-green hover:underline tracking-[-0.224px] bg-transparent border-none cursor-pointer" @click="handleToggleStatus(row)">启用</button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div v-if="total > 0" class="pagination-container">
+          <el-pagination v-model:current-page="queryParams.page" :page-size="queryParams.page_size" :total="total" layout="prev, pager, next, total" @current-change="handlePageChange" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.search-bar { background: #fff; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-.table-container { background: #fff; padding: 20px; border-radius: 4px; }
 .pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
+:deep(.apple-table) { --el-table-border-color: rgba(0, 0, 0, 0.06); --el-table-header-bg-color: #f5f5f7; }
+:deep(.apple-table th.el-table__cell) { font-size: 12px !important; font-weight: 600 !important; color: rgba(0, 0, 0, 0.48) !important; letter-spacing: -0.12px !important; }
+:deep(.apple-table td.el-table__cell) { font-size: 14px !important; letter-spacing: -0.224px !important; }
 </style>
