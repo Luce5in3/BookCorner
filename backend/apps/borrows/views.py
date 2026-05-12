@@ -13,8 +13,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from utils.response import success_response, error_response
-from utils.permissions import IsAdmin
-from apps.users.permissions import IsOwnerOrAdmin
+from utils.permissions import IsAdmin, IsOwnerOrAdmin
 from apps.books.models import Book, BookCopy, BookCopyStatus
 from apps.fines.models import Fine, FineStatus
 from .models import Borrow, Renewal, BorrowStatus

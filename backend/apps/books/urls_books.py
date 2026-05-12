@@ -9,9 +9,15 @@ from .views import (
     BookToggleStatusView,
     BookGenerateDescriptionView,
     BookCopiesByBookView,
+    BookCoverUploadView,
+    BookAISearchView,
 )
 
 urlpatterns = [
+    # 上传封面（必须在 <int:pk>/ 之前）
+    path('upload-cover/', BookCoverUploadView.as_view(), name='book_upload_cover'),
+    # AI 智能检索
+    path('ai-search/', BookAISearchView.as_view(), name='book_ai_search'),
     # 图书列表
     path('', BookListView.as_view(), name='book_list'),
     # 图书详情

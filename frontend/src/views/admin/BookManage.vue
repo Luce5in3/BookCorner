@@ -3,6 +3,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { getBooks, createBook, updateBook, deleteBook, publishBook, unpublishBook, getCategoryTree } from '@/api/books'
 import { formatDateTime, BOOK_STATUS, getStatusTagType } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 
 const loading = ref(false)
 const books = ref([])
@@ -11,6 +12,8 @@ const total = ref(0)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formRef = ref(null)
+const coverFile = ref(null)
+const coverPreviewUrl = ref('')
 
 const queryParams = ref({
   search: '',
@@ -26,7 +29,6 @@ const form = reactive({
   title: '',
   author: '',
   publisher: '',
-  cover_url: '',
   description: '',
   category_id: null,
   price: null,
@@ -84,13 +86,14 @@ function handleAdd() {
 
 function handleEdit(row) {
   dialogTitle.value = '编辑图书'
+  coverFile.value = null
+  coverPreviewUrl.value = row.cover_url || ''
   Object.assign(form, {
     id: row.id,
     isbn: row.isbn || '',
     title: row.title,
     author: row.author,
     publisher: row.publisher || '',
-    cover_url: row.cover_url || '',
     description: row.description || '',
     category_id: row.category_id,
     price: row.price,
@@ -103,19 +106,31 @@ function handleEdit(row) {
 async function handleSubmit() {
   try {
     await formRef.value.validate()
-    
-    const data = { ...form }
-    if (!data.isbn) delete data.isbn
-    if (!data.category_id) delete data.category_id
-    
+
+    // 构建 FormData
+    const formData = new FormData()
+    if (form.isbn) formData.append('isbn', form.isbn)
+    formData.append('title', form.title)
+    formData.append('author', form.author)
+    if (form.publisher) formData.append('publisher', form.publisher)
+    if (form.description) formData.append('description', form.description)
+    if (form.category_id) formData.append('category', form.category_id)
+    if (form.price !== null && form.price !== undefined) formData.append('price', form.price)
+    if (form.publish_date) formData.append('publish_date', form.publish_date)
+    formData.append('language', form.language)
+    // 添加封面图片文件
+    if (coverFile.value) {
+      formData.append('cover', coverFile.value)
+    }
+
     if (form.id) {
-      await updateBook(form.id, data)
+      await updateBook(form.id, formData)
       ElMessage.success('更新成功')
     } else {
-      await createBook(data)
+      await createBook(formData)
       ElMessage.success('创建成功')
     }
-    
+
     dialogVisible.value = false
     fetchBooks()
   } catch (error) {
@@ -159,9 +174,29 @@ async function handleUnpublish(row) {
 function resetForm() {
   Object.assign(form, {
     id: null, isbn: '', title: '', author: '', publisher: '',
-    cover_url: '', description: '', category_id: null,
+    description: '', category_id: null,
     price: null, publish_date: '', language: 'zh'
   })
+  coverFile.value = null
+  coverPreviewUrl.value = ''
+}
+
+function handleCoverChange(options) {
+  const { file } = options
+  // 验证文件类型
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (!allowedTypes.includes(file.type)) {
+    ElMessage.error('仅支持 JPG/PNG/WebP/GIF 格式的图片')
+    return
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.error('图片大小不能超过 5MB')
+    return
+  }
+  // 保存文件对象，提交时一并上传
+  coverFile.value = file
+  // 生成本地预览 URL
+  coverPreviewUrl.value = URL.createObjectURL(file)
 }
 
 onMounted(() => {
@@ -283,8 +318,23 @@ onMounted(() => {
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="封面URL">
-          <el-input v-model="form.cover_url" />
+        <el-form-item label="封面">
+          <div class="cover-upload-area">
+            <el-upload
+              :http-request="handleCoverChange"
+              :show-file-list="false"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+            >
+              <div v-if="coverPreviewUrl" class="cover-preview">
+                <img :src="coverPreviewUrl" alt="封面预览" />
+                <div class="cover-overlay">点击更换</div>
+              </div>
+              <div v-else class="cover-placeholder">
+                <el-icon :size="28"><Plus /></el-icon>
+                <span>上传封面</span>
+              </div>
+            </el-upload>
+          </div>
         </el-form-item>
         <el-form-item label="简介">
           <el-input v-model="form.description" type="textarea" :rows="3" />
@@ -329,5 +379,63 @@ onMounted(() => {
   font-weight: 600 !important;
   color: #1d1d1f !important;
   letter-spacing: -0.224px !important;
+}
+
+/* Cover Upload */
+.cover-upload-area {
+  width: 100%;
+}
+
+.cover-preview {
+  position: relative;
+  width: 120px;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.cover-preview:hover .cover-overlay {
+  opacity: 1;
+}
+
+.cover-placeholder {
+  width: 120px;
+  height: 160px;
+  border: 1.5px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.cover-placeholder:hover {
+  border-color: #0071e3;
+  color: #0071e3;
 }
 </style>

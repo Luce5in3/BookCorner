@@ -48,3 +48,19 @@ class IsAdminOrReadOnly(BasePermission):
             request.user.is_authenticated and 
             request.user.role >= 1
         )
+
+
+class IsOwnerOrAdmin(BasePermission):
+    """对象所有者或管理员权限"""
+    message = '需要是资源所有者或管理员'
+    
+    def has_object_permission(self, request, view, obj):
+        # 管理员有权限
+        if request.user.role >= 1:
+            return True
+        # 检查是否是所有者
+        if hasattr(obj, 'user'):
+            return obj.user == request.user
+        if hasattr(obj, 'user_id'):
+            return obj.user_id == request.user.id
+        return False

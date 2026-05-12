@@ -12,6 +12,7 @@ import requests as http_requests
 
 from utils.response import success_response, error_response
 from utils.permissions import IsAdmin, IsAdminOrReadOnly
+from utils.oss import upload_file_to_oss
 from .models import Category, Book, BookCopy, BookCopyStatus
 from .serializers import (
     CategorySerializer,
@@ -134,6 +135,35 @@ class CategoryFlatListView(APIView):
 
 
 # ==================== 图书视图 ====================
+
+
+class BookCoverUploadView(APIView):
+    """
+    上传图书封面图片到 OSS
+    POST /api/books/upload-cover/
+    """
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def post(self, request):
+        file = request.FILES.get('file')
+        if not file:
+            return error_response(message='请选择要上传的图片', code=400)
+
+        # 验证文件类型
+        allowed_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+        if file.content_type not in allowed_types:
+            return error_response(message='仅支持 JPG/PNG/WebP/GIF 格式的图片', code=400)
+
+        # 验证文件大小（5MB）
+        if file.size > 5 * 1024 * 1024:
+            return error_response(message='图片大小不能超过 5MB', code=400)
+
+        try:
+            url = upload_file_to_oss(file, folder='covers')
+            return success_response(data={'url': url}, message='上传成功')
+        except Exception as e:
+            return error_response(message=f'上传失败：{str(e)}', code=500,
+                                  status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class BookGenerateDescriptionView(APIView):
@@ -454,3 +484,85 @@ class BookCopiesByBookView(generics.ListAPIView):
         
         serializer = self.get_serializer(queryset, many=True)
         return success_response(data=serializer.data)
+
+
+class BookAISearchView(APIView):
+    """
+    AI 智能检索图书
+    POST /api/books/ai-search/
+    用户用自然语言描述需求，AI 在馆藏中检索匹配的图书
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        query = request.data.get('query', '').strip()
+        if not query:
+            return error_response(message='请输入检索内容', code=400)
+
+        # 检查 AI 服务配置
+        if not settings.AI_API_KEY or settings.AI_API_KEY == 'your-ai-api-key-here':
+            return error_response(message='AI 服务未配置，请联系管理员', code=503,
+                                  status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # 获取馆藏图书列表（上架中的）
+        books_qs = Book.objects.filter(status=1).select_related('category')
+        book_list = []
+        for b in books_qs[:500]:
+            info = f'《{b.title}》 作者:{b.author}'
+            if b.category:
+                info += f' 分类:{b.category.name}'
+            if b.description:
+                info += f' 简介:{b.description[:60]}'
+            book_list.append({'id': b.id, 'text': info, 'title': b.title, 'author': b.author})
+
+        # 构建 prompt
+        book_texts = '\n'.join([f"{i+1}. {item['text']}" for i, item in enumerate(book_list)])
+        prompt = (
+            f'以下是图书馆的馆藏书目清单：\n{book_texts}\n\n'
+            f'读者的需求是：「{query}」\n\n'
+            f'请根据读者需求，从上面的书目清单中找出最相关的图书（最多推荐5本）。'
+            f'如果找到相关图书，请用以下JSON格式返回：'
+            f'{{"found": true, "books": [{{"title": "书名", "author": "作者", "reason": "推荐理由"}}]}}\n'
+            f'如果没有找到任何相关图书，请返回：'
+            f'{{"found": false, "message": "未查询到该类图书"}}\n'
+            f'注意：只返回JSON，不要包含其他内容。'
+        )
+
+        try:
+            import json
+            resp = http_requests.post(
+                f'{settings.AI_BASE_URL}/chat/completions',
+                headers={
+                    'Content-Type': 'application/json',
+                    'Authorization': f'Bearer {settings.AI_API_KEY}',
+                },
+                json={
+                    'model': settings.AI_MODEL,
+                    'messages': [
+                        {'role': 'system', 'content': '你是一位图书馆智能检索助手，帮助读者从馆藏中找到需要的图书。只返回JSON格式结果。'},
+                        {'role': 'user', 'content': prompt},
+                    ],
+                    'max_tokens': 800,
+                    'temperature': 0.3,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            content = data['choices'][0]['message']['content'].strip()
+
+            # 兼容 AI 可能返回 markdown 代码块
+            if content.startswith('```'):
+                content = content.split('\n', 1)[1].rsplit('```', 1)[0].strip()
+            result = json.loads(content)
+
+            return success_response(data=result)
+
+        except http_requests.exceptions.Timeout:
+            return error_response(message='AI 服务响应超时，请稍后重试', code=504,
+                                  status_code=status.HTTP_504_GATEWAY_TIMEOUT)
+        except (ValueError, KeyError, IndexError):
+            return success_response(data={'found': False, 'message': 'AI 返回格式异常，请重试'})
+        except Exception as e:
+            return error_response(message=f'AI 检索失败：{str(e)}', code=500,
+                                  status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

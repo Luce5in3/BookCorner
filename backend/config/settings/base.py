@@ -165,3 +165,12 @@ SPECTACULAR_SETTINGS = {
 AI_API_KEY = config('AI_API_KEY', default='')
 AI_BASE_URL = config('AI_BASE_URL', default='https://api.deepseek.com')
 AI_MODEL = config('AI_MODEL', default='deepseek-chat')
+
+# 阿里云 OSS
+OSS_REGION = config('OSS_REGION', default='oss-cn-beijing')
+OSS_BUCKET = config('OSS_BUCKET', default='')
+OSS_ENDPOINT = config('OSS_ENDPOINT', default='oss-cn-beijing.aliyuncs.com')
+OSS_BASE_URL = config('OSS_BASE_URL', default='')
+OSS_PREFIX = config('OSS_PREFIX', default='library/')
+OSS_ACCESS_KEY_ID = config('OSS_ACCESS_KEY_ID', default='')
+OSS_ACCESS_KEY_SECRET = config('OSS_ACCESS_KEY_SECRET', default='')

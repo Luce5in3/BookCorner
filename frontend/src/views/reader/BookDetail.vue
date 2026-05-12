@@ -99,7 +99,7 @@ onUnmounted(() => {
           <div class="w-full md:w-[220px] flex-shrink-0">
             <div class="book-cover">
               <el-image
-                :src="coverUrl || book.cover_url || '/default-cover.png'"
+                :src="coverUrl || book.cover_url || '/default-cover.svg'"
                 fit="cover"
                 class="cover-img"
               >

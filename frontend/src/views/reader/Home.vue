@@ -1,9 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { getBooks, getCategoryTree } from '@/api/books'
+import { getBooks, getCategoryTree, aiSearchBooks } from '@/api/books'
 import { getPublishedAnnouncements } from '@/api/announcements'
-import { BOOK_STATUS } from '@/utils/format'
 import imageCache from '@/utils/imageCache'
 
 const router = useRouter()
@@ -50,7 +49,7 @@ async function fetchBooks() {
 }
 
 function getCoverUrl(book) {
-  return coverUrls.value[book.id] || book.cover_url || '/default-cover.png'
+  return coverUrls.value[book.id] || book.cover_url || '/default-cover.svg'
 }
 
 async function fetchCategories() {
@@ -88,6 +87,50 @@ function goToDetail(id) {
 function showAnnouncement(item) {
   currentAnnouncement.value = { title: item.title, content: item.content }
   announcementVisible.value = true
+}
+
+// ========== AI 智能检索 ==========
+const aiChatOpen = ref(false)
+const aiQuery = ref('')
+const aiLoading = ref(false)
+const aiMessages = ref([]) // { role: 'user'|'ai', content: string }
+const chatBodyRef = ref(null)
+
+function toggleAIChat() {
+  aiChatOpen.value = !aiChatOpen.value
+}
+
+async function sendAIQuery() {
+  const q = aiQuery.value.trim()
+  if (!q || aiLoading.value) return
+
+  aiMessages.value.push({ role: 'user', content: q })
+  aiQuery.value = ''
+  aiLoading.value = true
+  scrollChatToBottom()
+
+  try {
+    const data = await aiSearchBooks(q)
+    if (data.found && data.books && data.books.length > 0) {
+      const lines = data.books.map(b => `《${b.title}》 ${b.author ? '- ' + b.author : ''}\n${b.reason || ''}`)
+      aiMessages.value.push({ role: 'ai', content: '为您找到以下图书：\n\n' + lines.join('\n\n') })
+    } else {
+      aiMessages.value.push({ role: 'ai', content: data.message || '未查询到该类图书' })
+    }
+  } catch (err) {
+    aiMessages.value.push({ role: 'ai', content: '检索失败，请稍后重试' })
+  } finally {
+    aiLoading.value = false
+    scrollChatToBottom()
+  }
+}
+
+function scrollChatToBottom() {
+  nextTick(() => {
+    if (chatBodyRef.value) {
+      chatBodyRef.value.scrollTop = chatBodyRef.value.scrollHeight
+    }
+  })
 }
 
 onMounted(() => {
@@ -216,6 +259,48 @@ onUnmounted(() => {
         </button>
       </template>
     </el-dialog>
+
+    <!-- AI 智能检索浮动框 -->
+    <div class="ai-chat-wrapper">
+      <!-- 触发按钮 -->
+      <div v-if="!aiChatOpen" class="ai-chat-trigger" @click="toggleAIChat">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <!-- 对话框 -->
+      <div v-if="aiChatOpen" class="ai-chat-box">
+        <div class="ai-chat-header">
+          <span>🤖 智能找书</span>
+          <span class="ai-chat-close" @click="toggleAIChat">&times;</span>
+        </div>
+        <div ref="chatBodyRef" class="ai-chat-body">
+          <div v-if="aiMessages.length === 0" class="ai-chat-placeholder">
+            试试输入“我想看一本写动物的书”
+          </div>
+          <div v-for="(msg, idx) in aiMessages" :key="idx" 
+               :class="['ai-msg', msg.role === 'user' ? 'ai-msg-user' : 'ai-msg-bot']">
+            <div class="ai-msg-bubble">{{ msg.content }}</div>
+          </div>
+          <div v-if="aiLoading" class="ai-msg ai-msg-bot">
+            <div class="ai-msg-bubble ai-typing">思考中...</div>
+          </div>
+        </div>
+        <div class="ai-chat-footer">
+          <input 
+            v-model="aiQuery" 
+            class="ai-chat-input" 
+            placeholder="描述你想找的书..." 
+            @keyup.enter="sendAIQuery"
+          />
+          <button class="ai-chat-send" :disabled="aiLoading" @click="sendAIQuery">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -380,5 +465,167 @@ onUnmounted(() => {
 
 :deep(.apple-input .el-input__inner::placeholder) {
   color: rgba(0, 0, 0, 0.48) !important;
+}
+
+/* AI 智能检索浮动框 */
+.ai-chat-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.ai-chat-trigger {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #0071e3;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ai-chat-trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 113, 227, 0.5);
+}
+
+.ai-chat-box {
+  width: 320px;
+  height: 420px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f5f5f7;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ai-chat-close {
+  font-size: 20px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.4);
+  line-height: 1;
+}
+
+.ai-chat-close:hover {
+  color: #1d1d1f;
+}
+
+.ai-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-chat-placeholder {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+  margin-top: 60px;
+}
+
+.ai-msg {
+  display: flex;
+}
+
+.ai-msg-user {
+  justify-content: flex-end;
+}
+
+.ai-msg-bot {
+  justify-content: flex-start;
+}
+
+.ai-msg-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ai-msg-user .ai-msg-bubble {
+  background: #0071e3;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.ai-msg-bot .ai-msg-bubble {
+  background: #f0f0f5;
+  color: #1d1d1f;
+  border-bottom-left-radius: 4px;
+}
+
+.ai-typing {
+  color: rgba(0, 0, 0, 0.4);
+  font-style: italic;
+}
+
+.ai-chat-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: #fafafc;
+}
+
+.ai-chat-input {
+  flex: 1;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.ai-chat-input:focus {
+  border-color: #0071e3;
+}
+
+.ai-chat-send {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #0071e3;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.ai-chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-chat-send:not(:disabled):hover {
+  opacity: 0.85;
 }
 </style>

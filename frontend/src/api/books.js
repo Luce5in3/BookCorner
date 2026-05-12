@@ -77,6 +77,18 @@ export function deleteBook(id) {
 }
 
 /**
+ * 上传图书封面
+ * @param {File} file 图片文件
+ */
+export function uploadBookCover(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.post('/api/books/upload-cover/', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+/**
  * AI 生成图书简介
  * @param {number} id 图书ID
  * @param {string} keywords 关注关键词
@@ -97,6 +109,14 @@ export function publishBook(id) {
  */
 export function unpublishBook(id) {
   return request.post(`/api/books/${id}/toggle-status/`)
+}
+
+/**
+ * AI 智能检索图书
+ * @param {string} query 自然语言检索内容
+ */
+export function aiSearchBooks(query) {
+  return request.post('/api/books/ai-search/', { query })
 }
 
 // ========== 副本接口 ==========

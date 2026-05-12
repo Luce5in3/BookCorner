@@ -3,6 +3,7 @@
 """
 from rest_framework import serializers
 from .models import Category, Book, BookCopy, BookStatus, BookCopyStatus, BookCopyCondition
+from utils.oss import upload_file_to_oss
 
 
 # ==================== 分类序列化器 ====================
@@ -111,35 +112,63 @@ class BookDetailSerializer(serializers.ModelSerializer):
 
 class BookCreateSerializer(serializers.ModelSerializer):
     """图书创建序列化器"""
-    
+    cover = serializers.ImageField(write_only=True, required=False, help_text='封面图片文件')
+
     class Meta:
         model = Book
         fields = (
-            'isbn', 'title', 'author', 'publisher', 'cover_url',
+            'isbn', 'title', 'author', 'publisher', 'cover',
             'description', 'category', 'price', 'publish_date', 'language', 'status'
         )
-    
+        extra_kwargs = {
+            'isbn': {'validators': []},  # 移除自动添加的 UniqueValidator，使用自定义 validate_isbn
+        }
+
     def validate_isbn(self, value):
         if value and Book.objects.filter(isbn=value).exists():
             raise serializers.ValidationError('ISBN 已存在')
         return value
 
+    def create(self, validated_data):
+        cover_file = validated_data.pop('cover', None)
+        if cover_file:
+            try:
+                url = upload_file_to_oss(cover_file, folder='covers')
+                validated_data['cover_url'] = url
+            except Exception as e:
+                raise serializers.ValidationError({'cover': f'封面上传失败：{str(e)}'})
+        return super().create(validated_data)
+
 
 class BookUpdateSerializer(serializers.ModelSerializer):
     """图书更新序列化器"""
-    
+    cover = serializers.ImageField(write_only=True, required=False, help_text='封面图片文件')
+
     class Meta:
         model = Book
         fields = (
-            'isbn', 'title', 'author', 'publisher', 'cover_url',
+            'isbn', 'title', 'author', 'publisher', 'cover',
             'description', 'category', 'price', 'publish_date', 'language', 'status'
         )
-    
+        extra_kwargs = {
+            'isbn': {'validators': []},  # 移除自动添加的 UniqueValidator，使用自定义 validate_isbn
+        }
+
     def validate_isbn(self, value):
         instance = self.instance
         if value and Book.objects.exclude(pk=instance.pk).filter(isbn=value).exists():
             raise serializers.ValidationError('ISBN 已存在')
         return value
+
+    def update(self, instance, validated_data):
+        cover_file = validated_data.pop('cover', None)
+        if cover_file:
+            try:
+                url = upload_file_to_oss(cover_file, folder='covers')
+                validated_data['cover_url'] = url
+            except Exception as e:
+                raise serializers.ValidationError({'cover': f'封面上传失败：{str(e)}'})
+        return super().update(instance, validated_data)
 
 
 # ==================== 副本序列化器 ====================
